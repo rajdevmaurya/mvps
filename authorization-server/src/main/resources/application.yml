@@ -1,0 +1,33 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: authorizationserver
+  datasource:
+    url: jdbc:mysql://localhost:3306/springboottutorial
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always 
+      
+jwt:
+  encryptor:
+    password: password
+    salt: 626F6F746966756C
+      
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: trace
+    org.springframework.security.jackson2: INFO

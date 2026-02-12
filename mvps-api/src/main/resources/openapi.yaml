@@ -1,0 +1,3314 @@
+openapi: 3.0.2
+info:
+  title: Echo Healthcare API
+  description: |
+    Multi-Vendor Healthcare Products Management System API
+    
+    This API provides comprehensive endpoints for managing vendors, products, pricing, 
+    inventory, orders, and customers for Echo Healthcare's online and door-to-door sales platform.
+    
+    Key Features:
+    - Automatic lowest price vendor selection
+    - Multi-vendor product management
+    - Real-time inventory tracking
+    - Order management (online & door-to-door)
+    - Customer management
+    - Sales analytics and reporting
+  version: 1.0.0
+  contact:
+    name: Echo Healthcare API Support
+    email: support@echo-healthcare.com
+
+servers:
+  - url: http://localhost:8888/v1
+    description: Development server
+
+tags:
+  - name: Vendors
+    description: Vendor management operations
+  - name: Products
+    description: Product catalog management
+  - name: Product Categories
+    description: Product category management
+  - name: Vendor Products
+    description: Vendor-specific product pricing and inventory
+  - name: Customers
+    description: Customer management
+  - name: Orders
+    description: Order management and tracking
+  - name: Order Items
+    description: Order line items management
+  - name: Vendor Orders
+    description: Purchase orders to vendors
+  - name: Analytics
+    description: Reports and analytics endpoints
+  - name: Search
+    description: Advanced search operations
+
+paths:
+  # ============================================
+  # VENDOR ENDPOINTS
+  # ============================================
+  /vendors:
+    get:
+      tags:
+        - Vendors
+      summary: Get all vendors
+      description: Retrieve a list of all vendors with optional filtering
+      parameters:
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+        - name: city
+          in: query
+          description: Filter by city
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: Filter by state
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vendor'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Vendors
+      summary: Create a new vendor
+      description: Add a new vendor to the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCreate'
+      responses:
+        '201':
+          description: Vendor created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor created successfully
+                  data:
+                    $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendors/{vendorId}:
+    get:
+      tags:
+        - Vendors
+      summary: Get vendor by ID
+      description: Retrieve detailed information about a specific vendor
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Vendor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Vendors
+      summary: Update vendor
+      description: Update vendor information
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorUpdate'
+      responses:
+        '200':
+          description: Vendor updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor updated successfully
+                  data:
+                    $ref: '#/components/schemas/Vendor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Vendors
+      summary: Delete vendor
+      description: Soft delete a vendor (sets is_active to false)
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+      responses:
+        '200':
+          description: Vendor deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendors/{vendorId}/products:
+    get:
+      tags:
+        - Vendors
+      summary: Get all products from a vendor
+      description: Retrieve all products offered by a specific vendor
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+        - name: is_available
+          in: query
+          description: Filter by availability
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorProduct'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendors/performance:
+    get:
+      tags:
+        - Vendors
+        - Analytics
+      summary: Get vendor performance metrics
+      description: Retrieve performance analytics for all vendors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorPerformance'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # PRODUCT CATEGORY ENDPOINTS
+  # ============================================
+  /categories:
+    get:
+      tags:
+        - Product Categories
+      summary: Get all product categories
+      description: Retrieve list of all product categories
+      parameters:
+        - name: parent_category_id
+          in: query
+          description: Filter by parent category
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductCategory'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Product Categories
+      summary: Create new category
+      description: Add a new product category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCategoryCreate'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Category created successfully
+                  data:
+                    $ref: '#/components/schemas/ProductCategory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /categories/{categoryId}:
+    get:
+      tags:
+        - Product Categories
+      summary: Get category by ID
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ProductCategory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Product Categories
+      summary: Update category
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCategoryUpdate'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Category updated successfully
+                  data:
+                    $ref: '#/components/schemas/ProductCategory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Product Categories
+      summary: Delete category
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Category deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # PRODUCT ENDPOINTS
+  # ============================================
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: Retrieve list of all products with optional filtering
+      parameters:
+        - name: category_id
+          in: query
+          description: Filter by category
+          schema:
+            type: integer
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+        - name: prescription_required
+          in: query
+          description: Filter by prescription requirement
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Search in product name or generic name
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Products
+      summary: Create new product
+      description: Add a new product to the master catalog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product created successfully
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Products
+      summary: Update product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product updated successfully
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      description: Soft delete a product (sets is_active to false)
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{productId}/vendors:
+    get:
+      tags:
+        - Products
+      summary: Get all vendors for a product
+      description: Get all vendors offering a specific product with pricing comparison
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorProductComparison'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{productId}/lowest-price:
+    get:
+      tags:
+        - Products
+      summary: Get lowest price vendor for product
+      description: Get the vendor offering the lowest price for a specific product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/LowestPriceProduct'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # VENDOR PRODUCT ENDPOINTS
+  # ============================================
+  /vendor-products:
+    get:
+      tags:
+        - Vendor Products
+      summary: Get all vendor products
+      description: Retrieve vendor-specific product listings with pricing
+      parameters:
+        - name: vendor_id
+          in: query
+          description: Filter by vendor
+          schema:
+            type: integer
+        - name: product_id
+          in: query
+          description: Filter by product
+          schema:
+            type: integer
+        - name: is_available
+          in: query
+          description: Filter by availability
+          schema:
+            type: boolean
+        - name: min_price
+          in: query
+          description: Minimum final price
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          description: Maximum final price
+          schema:
+            type: number
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorProduct'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Vendor Products
+      summary: Create vendor product
+      description: Add a product to a vendor's catalog with pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorProductCreate'
+      responses:
+        '201':
+          description: Vendor product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor product created successfully
+                  data:
+                    $ref: '#/components/schemas/VendorProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendor-products/{vendorProductId}:
+    get:
+      tags:
+        - Vendor Products
+      summary: Get vendor product by ID
+      parameters:
+        - $ref: '#/components/parameters/VendorProductId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VendorProduct'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Vendor Products
+      summary: Update vendor product
+      description: Update vendor product pricing and availability
+      parameters:
+        - $ref: '#/components/parameters/VendorProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorProductUpdate'
+      responses:
+        '200':
+          description: Vendor product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor product updated successfully
+                  data:
+                    $ref: '#/components/schemas/VendorProduct'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Vendor Products
+      summary: Delete vendor product
+      description: Remove product from vendor's catalog
+      parameters:
+        - $ref: '#/components/parameters/VendorProductId'
+      responses:
+        '200':
+          description: Vendor product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor product deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendor-products/lowest-prices:
+    get:
+      tags:
+        - Vendor Products
+        - Analytics
+      summary: Get all products with lowest prices
+      description: Retrieve all products showing the vendor with the lowest price for each
+      parameters:
+        - name: category_id
+          in: query
+          description: Filter by category
+          schema:
+            type: integer
+        - name: max_price
+          in: query
+          description: Maximum price filter
+          schema:
+            type: number
+        - name: min_stock
+          in: query
+          description: Minimum stock quantity
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LowestPriceProduct'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendor-products/price-comparison:
+    get:
+      tags:
+        - Vendor Products
+        - Analytics
+      summary: Get price comparison for all products
+      description: Compare prices across all vendors for all products
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PriceComparison'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendor-products/update-stock:
+    patch:
+      tags:
+        - Vendor Products
+      summary: Update stock quantity
+      description: Update stock quantity for vendor products (batch operation)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                updates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      vendor_product_id:
+                        type: integer
+                      stock_quantity:
+                        type: integer
+                    required:
+                      - vendor_product_id
+                      - stock_quantity
+      responses:
+        '200':
+          description: Stock updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Stock updated successfully
+                  updated_count:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # CUSTOMER ENDPOINTS
+  # ============================================
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: Get all customers
+      description: Retrieve list of all customers
+      parameters:
+        - name: customer_type
+          in: query
+          description: Filter by customer type
+          schema:
+            type: string
+            enum: [retail, wholesale, institution]
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+        - name: city
+          in: query
+          description: Filter by city
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search by name, email, or phone
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Customers
+      summary: Create new customer
+      description: Register a new customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Customer created successfully
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /customers/{customerId}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Customers
+      summary: Update customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+      responses:
+        '200':
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Customer updated successfully
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Customers
+      summary: Delete customer
+      description: Soft delete a customer (sets is_active to false)
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Customer deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /customers/{customerId}/orders:
+    get:
+      tags:
+        - Customers
+      summary: Get customer order history
+      description: Retrieve all orders for a specific customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+        - name: order_status
+          in: query
+          description: Filter by order status
+          schema:
+            type: string
+            enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+        - name: from_date
+          in: query
+          description: Start date for order history
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          description: End date for order history
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # ORDER ENDPOINTS
+  # ============================================
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Get all orders
+      description: Retrieve list of all orders with filtering options
+      parameters:
+        - name: customer_id
+          in: query
+          description: Filter by customer
+          schema:
+            type: integer
+        - name: order_status
+          in: query
+          description: Filter by order status
+          schema:
+            type: string
+            enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+        - name: payment_status
+          in: query
+          description: Filter by payment status
+          schema:
+            type: string
+            enum: [pending, paid, partial, failed]
+        - name: order_type
+          in: query
+          description: Filter by order type
+          schema:
+            type: string
+            enum: [online, door_to_door]
+        - name: from_date
+          in: query
+          description: Start date
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          description: End date
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Orders
+      summary: Create new order
+      description: Create a new customer order with automatic lowest price vendor selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order created successfully
+                  data:
+                    $ref: '#/components/schemas/OrderWithItems'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get order by ID
+      description: Retrieve detailed order information including items
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/OrderWithItems'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Orders
+      summary: Update order
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdate'
+      responses:
+        '200':
+          description: Order updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order updated successfully
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Orders
+      summary: Cancel order
+      description: Cancel an order (sets status to cancelled)
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order cancelled successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{orderId}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Update order status
+      description: Update the status of an order
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_status:
+                  type: string
+                  enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+              required:
+                - order_status
+      responses:
+        '200':
+          description: Order status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order status updated successfully
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{orderId}/payment-status:
+    patch:
+      tags:
+        - Orders
+      summary: Update payment status
+      description: Update the payment status of an order
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_status:
+                  type: string
+                  enum: [pending, paid, partial, failed]
+              required:
+                - payment_status
+      responses:
+        '200':
+          description: Payment status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Payment status updated successfully
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # ORDER ITEMS ENDPOINTS
+  # ============================================
+  /order-items:
+    get:
+      tags:
+        - Order Items
+      summary: Get all order items
+      description: Retrieve all order line items
+      parameters:
+        - name: order_id
+          in: query
+          description: Filter by order
+          schema:
+            type: integer
+        - name: vendor_id
+          in: query
+          description: Filter by vendor
+          schema:
+            type: integer
+        - name: product_id
+          in: query
+          description: Filter by product
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /order-items/{orderItemId}:
+    get:
+      tags:
+        - Order Items
+      summary: Get order item by ID
+      parameters:
+        - $ref: '#/components/parameters/OrderItemId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/OrderItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Order Items
+      summary: Update order item
+      parameters:
+        - $ref: '#/components/parameters/OrderItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItemUpdate'
+      responses:
+        '200':
+          description: Order item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order item updated successfully
+                  data:
+                    $ref: '#/components/schemas/OrderItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Order Items
+      summary: Delete order item
+      parameters:
+        - $ref: '#/components/parameters/OrderItemId'
+      responses:
+        '200':
+          description: Order item deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order item deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # VENDOR ORDERS (Purchase Orders) ENDPOINTS
+  # ============================================
+  /vendor-orders:
+    get:
+      tags:
+        - Vendor Orders
+      summary: Get all vendor orders
+      description: Retrieve all purchase orders to vendors
+      parameters:
+        - name: vendor_id
+          in: query
+          description: Filter by vendor
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [pending, confirmed, shipped, received, cancelled]
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorOrder'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Vendor Orders
+      summary: Create vendor order
+      description: Create a new purchase order to vendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorOrderCreate'
+      responses:
+        '201':
+          description: Vendor order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor order created successfully
+                  data:
+                    $ref: '#/components/schemas/VendorOrder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vendor-orders/{vendorOrderId}:
+    get:
+      tags:
+        - Vendor Orders
+      summary: Get vendor order by ID
+      parameters:
+        - $ref: '#/components/parameters/VendorOrderId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VendorOrder'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Vendor Orders
+      summary: Update vendor order
+      parameters:
+        - $ref: '#/components/parameters/VendorOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorOrderUpdate'
+      responses:
+        '200':
+          description: Vendor order updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor order updated successfully
+                  data:
+                    $ref: '#/components/schemas/VendorOrder'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Vendor Orders
+      summary: Cancel vendor order
+      parameters:
+        - $ref: '#/components/parameters/VendorOrderId'
+      responses:
+        '200':
+          description: Vendor order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Vendor order cancelled successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # SEARCH ENDPOINTS
+  # ============================================
+  /search/products:
+    get:
+      tags:
+        - Search
+      summary: Advanced product search
+      description: Search products with multiple criteria
+      parameters:
+        - name: q
+          in: query
+          description: Search query (product name, generic name, manufacturer)
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+        - name: min_price
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+        - name: prescription_required
+          in: query
+          schema:
+            type: boolean
+        - name: in_stock
+          in: query
+          description: Only show products with stock available
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LowestPriceProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /search/vendors:
+    get:
+      tags:
+        - Search
+      summary: Search vendors
+      description: Search vendors by name, location, or other criteria
+      parameters:
+        - name: q
+          in: query
+          description: Search query (vendor name, city)
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================
+  # ANALYTICS & REPORTS ENDPOINTS
+  # ============================================
+  /analytics/sales-summary:
+    get:
+      tags:
+        - Analytics
+      summary: Get sales summary
+      description: Get sales analytics for a date range
+      parameters:
+        - name: from_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: group_by
+          in: query
+          description: Group results by day, week, or month
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: day
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SalesSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/top-products:
+    get:
+      tags:
+        - Analytics
+      summary: Get top selling products
+      description: Get best selling products by revenue or quantity
+      parameters:
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          description: Number of top products to return
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - name: sort_by
+          in: query
+          description: Sort by revenue or quantity
+          schema:
+            type: string
+            enum: [revenue, quantity]
+            default: revenue
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TopProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/top-customers:
+    get:
+      tags:
+        - Analytics
+      summary: Get top customers
+      description: Get customers by total spending
+      parameters:
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TopCustomer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/vendor-revenue:
+    get:
+      tags:
+        - Analytics
+      summary: Get vendor revenue report
+      description: Get revenue breakdown by vendor
+      parameters:
+        - name: from_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VendorRevenue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/inventory-status:
+    get:
+      tags:
+        - Analytics
+      summary: Get inventory status report
+      description: Get current inventory status across all vendors
+      parameters:
+        - name: low_stock_threshold
+          in: query
+          description: Threshold for low stock alert
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/InventoryStatus'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics/expiring-products:
+    get:
+      tags:
+        - Analytics
+      summary: Get expiring products report
+      description: Get products expiring within specified days
+      parameters:
+        - name: days
+          in: query
+          description: Number of days to check for expiry
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExpiringProduct'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# ============================================
+# COMPONENTS
+# ============================================
+components:
+  parameters:
+    VendorId:
+      name: vendorId
+      in: path
+      required: true
+      description: Vendor ID
+      schema:
+        type: integer
+    
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      description: Product ID
+      schema:
+        type: integer
+    
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      description: Category ID
+      schema:
+        type: integer
+    
+    VendorProductId:
+      name: vendorProductId
+      in: path
+      required: true
+      description: Vendor Product ID
+      schema:
+        type: integer
+    
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      description: Customer ID
+      schema:
+        type: integer
+    
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: Order ID
+      schema:
+        type: integer
+    
+    OrderItemId:
+      name: orderItemId
+      in: path
+      required: true
+      description: Order Item ID
+      schema:
+        type: integer
+    
+    VendorOrderId:
+      name: vendorOrderId
+      in: path
+      required: true
+      description: Vendor Order ID
+      schema:
+        type: integer
+
+  schemas:
+    # ============================================
+    # VENDOR SCHEMAS
+    # ============================================
+    Vendor:
+      type: object
+      properties:
+        vendor_id:
+          type: integer
+          example: 1
+        vendor_name:
+          type: string
+          example: MediSupply India Pvt Ltd
+        contact_person:
+          type: string
+          example: Rajesh Kumar
+        email:
+          type: string
+          format: email
+          example: rajesh@medisupply.com
+        phone:
+          type: string
+          example: "9876543210"
+        address:
+          type: string
+          example: 123 Business Park
+        city:
+          type: string
+          example: Mumbai
+        state:
+          type: string
+          example: Maharashtra
+        pincode:
+          type: string
+          example: "400001"
+        gst_number:
+          type: string
+          example: 27AABCU9603R1ZV
+        is_active:
+          type: boolean
+          example: true
+        rating:
+          type: number
+          format: decimal
+          example: 4.5
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    VendorCreate:
+      type: object
+      required:
+        - vendor_name
+        - phone
+      properties:
+        vendor_name:
+          type: string
+          example: New Healthcare Supplier
+        contact_person:
+          type: string
+          example: Suresh Kumar
+        email:
+          type: string
+          format: email
+          example: suresh@newhealthcare.com
+        phone:
+          type: string
+          example: "9876543213"
+        address:
+          type: string
+        city:
+          type: string
+          example: Bangalore
+        state:
+          type: string
+          example: Karnataka
+        pincode:
+          type: string
+          example: "560001"
+        gst_number:
+          type: string
+          example: 29AABCU9603R1ZY
+        is_active:
+          type: boolean
+          default: true
+        rating:
+          type: number
+          format: decimal
+          default: 0.0
+    
+    VendorUpdate:
+      type: object
+      properties:
+        vendor_name:
+          type: string
+        contact_person:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        gst_number:
+          type: string
+        is_active:
+          type: boolean
+        rating:
+          type: number
+          format: decimal
+    
+    VendorPerformance:
+      type: object
+      properties:
+        vendor_id:
+          type: integer
+        vendor_name:
+          type: string
+        total_products:
+          type: integer
+          example: 150
+        avg_price:
+          type: number
+          format: decimal
+          example: 245.50
+        total_stock:
+          type: integer
+          example: 5000
+        products_with_lowest_price:
+          type: integer
+          example: 45
+          description: Number of products where this vendor has the lowest price
+
+    # ============================================
+    # PRODUCT CATEGORY SCHEMAS
+    # ============================================
+    ProductCategory:
+      type: object
+      properties:
+        category_id:
+          type: integer
+          example: 1
+        category_name:
+          type: string
+          example: Medicines
+        description:
+          type: string
+          example: Pharmaceutical medicines and drugs
+        parent_category_id:
+          type: integer
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+    
+    ProductCategoryCreate:
+      type: object
+      required:
+        - category_name
+      properties:
+        category_name:
+          type: string
+          example: Surgical Items
+        description:
+          type: string
+          example: Surgical instruments and supplies
+        parent_category_id:
+          type: integer
+          nullable: true
+    
+    ProductCategoryUpdate:
+      type: object
+      properties:
+        category_name:
+          type: string
+        description:
+          type: string
+        parent_category_id:
+          type: integer
+          nullable: true
+
+    # ============================================
+    # PRODUCT SCHEMAS
+    # ============================================
+    Product:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: Paracetamol 500mg
+        generic_name:
+          type: string
+          example: Paracetamol
+        category_id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: Pain relief and fever reducer
+        manufacturer:
+          type: string
+          example: Cipla Ltd
+        hsn_code:
+          type: string
+          example: "30049099"
+        unit_of_measure:
+          type: string
+          example: strip
+        prescription_required:
+          type: boolean
+          example: false
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    ProductCreate:
+      type: object
+      required:
+        - product_name
+        - category_id
+        - unit_of_measure
+      properties:
+        product_name:
+          type: string
+          example: Azithromycin 500mg
+        generic_name:
+          type: string
+          example: Azithromycin
+        category_id:
+          type: integer
+          example: 1
+        description:
+          type: string
+        manufacturer:
+          type: string
+          example: Alkem Laboratories
+        hsn_code:
+          type: string
+        unit_of_measure:
+          type: string
+          example: strip
+        prescription_required:
+          type: boolean
+          default: false
+        is_active:
+          type: boolean
+          default: true
+    
+    ProductUpdate:
+      type: object
+      properties:
+        product_name:
+          type: string
+        generic_name:
+          type: string
+        category_id:
+          type: integer
+        description:
+          type: string
+        manufacturer:
+          type: string
+        hsn_code:
+          type: string
+        unit_of_measure:
+          type: string
+        prescription_required:
+          type: boolean
+        is_active:
+          type: boolean
+
+    # ============================================
+    # VENDOR PRODUCT SCHEMAS
+    # ============================================
+    VendorProduct:
+      type: object
+      properties:
+        vendor_product_id:
+          type: integer
+          example: 1
+        vendor_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        vendor_sku:
+          type: string
+          example: V1-PAR500
+        cost_price:
+          type: number
+          format: decimal
+          example: 25.00
+        mrp:
+          type: number
+          format: decimal
+          example: 30.00
+        discount_percentage:
+          type: number
+          format: decimal
+          example: 5.00
+        final_price:
+          type: number
+          format: decimal
+          example: 23.75
+          description: Auto-calculated as cost_price * (1 - discount_percentage/100)
+        minimum_order_quantity:
+          type: integer
+          example: 1
+        stock_quantity:
+          type: integer
+          example: 500
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-12-31"
+        is_available:
+          type: boolean
+          example: true
+        delivery_time_days:
+          type: integer
+          example: 7
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    VendorProductCreate:
+      type: object
+      required:
+        - vendor_id
+        - product_id
+        - cost_price
+      properties:
+        vendor_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        vendor_sku:
+          type: string
+          example: V1-NEW001
+        cost_price:
+          type: number
+          format: decimal
+          example: 120.00
+        mrp:
+          type: number
+          format: decimal
+          example: 150.00
+        discount_percentage:
+          type: number
+          format: decimal
+          default: 0.00
+          example: 10.00
+        minimum_order_quantity:
+          type: integer
+          default: 1
+        stock_quantity:
+          type: integer
+          default: 0
+          example: 200
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+        is_available:
+          type: boolean
+          default: true
+        delivery_time_days:
+          type: integer
+          default: 7
+    
+    VendorProductUpdate:
+      type: object
+      properties:
+        vendor_sku:
+          type: string
+        cost_price:
+          type: number
+          format: decimal
+        mrp:
+          type: number
+          format: decimal
+        discount_percentage:
+          type: number
+          format: decimal
+        minimum_order_quantity:
+          type: integer
+        stock_quantity:
+          type: integer
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+        is_available:
+          type: boolean
+        delivery_time_days:
+          type: integer
+    
+    LowestPriceProduct:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 1
+        product_name:
+          type: string
+          example: Paracetamol 500mg
+        generic_name:
+          type: string
+          example: Paracetamol
+        vendor_product_id:
+          type: integer
+          example: 12
+        vendor_id:
+          type: integer
+          example: 2
+        vendor_name:
+          type: string
+          example: HealthCare Distributors
+        cost_price:
+          type: number
+          format: decimal
+          example: 23.00
+        discount_percentage:
+          type: number
+          format: decimal
+          example: 8.00
+        final_price:
+          type: number
+          format: decimal
+          example: 21.16
+          description: Lowest price among all vendors
+        stock_quantity:
+          type: integer
+          example: 800
+        is_available:
+          type: boolean
+          example: true
+    
+    VendorProductComparison:
+      type: object
+      properties:
+        vendor_id:
+          type: integer
+        vendor_name:
+          type: string
+        vendor_sku:
+          type: string
+        cost_price:
+          type: number
+          format: decimal
+        discount_percentage:
+          type: number
+          format: decimal
+        final_price:
+          type: number
+          format: decimal
+        stock_quantity:
+          type: integer
+        is_lowest_price:
+          type: boolean
+          description: True if this is the lowest price vendor
+    
+    PriceComparison:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        vendor_id:
+          type: integer
+        vendor_name:
+          type: string
+        cost_price:
+          type: number
+          format: decimal
+        discount_percentage:
+          type: number
+          format: decimal
+        final_price:
+          type: number
+          format: decimal
+        stock_quantity:
+          type: integer
+        price_status:
+          type: string
+          example: LOWEST PRICE
+          description: Indicates if this is the lowest price
+
+    # ============================================
+    # CUSTOMER SCHEMAS
+    # ============================================
+    Customer:
+      type: object
+      properties:
+        customer_id:
+          type: integer
+          example: 1
+        customer_name:
+          type: string
+          example: Rahul Verma
+        email:
+          type: string
+          format: email
+          example: rahul@email.com
+        phone:
+          type: string
+          example: "9876543220"
+        address:
+          type: string
+          example: 123 MG Road
+        city:
+          type: string
+          example: Pune
+        state:
+          type: string
+          example: Maharashtra
+        pincode:
+          type: string
+          example: "411001"
+        customer_type:
+          type: string
+          enum: [retail, wholesale, institution]
+          example: retail
+        registration_date:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          example: true
+    
+    CustomerCreate:
+      type: object
+      required:
+        - customer_name
+        - phone
+      properties:
+        customer_name:
+          type: string
+          example: Priya Sharma
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "9876543221"
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        customer_type:
+          type: string
+          enum: [retail, wholesale, institution]
+          default: retail
+        is_active:
+          type: boolean
+          default: true
+    
+    CustomerUpdate:
+      type: object
+      properties:
+        customer_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        customer_type:
+          type: string
+          enum: [retail, wholesale, institution]
+        is_active:
+          type: boolean
+
+    # ============================================
+    # ORDER SCHEMAS
+    # ============================================
+    Order:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          example: 1
+        customer_id:
+          type: integer
+          example: 1
+        order_number:
+          type: string
+          example: ORD-2026-001
+        order_date:
+          type: string
+          format: date-time
+        order_type:
+          type: string
+          enum: [online, door_to_door]
+          example: online
+        total_amount:
+          type: number
+          format: decimal
+          example: 500.00
+        discount_amount:
+          type: number
+          format: decimal
+          example: 0.00
+        tax_amount:
+          type: number
+          format: decimal
+          example: 0.00
+        final_amount:
+          type: number
+          format: decimal
+          example: 500.00
+        payment_status:
+          type: string
+          enum: [pending, paid, partial, failed]
+          example: pending
+        order_status:
+          type: string
+          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+          example: pending
+        delivery_address:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    OrderCreate:
+      type: object
+      required:
+        - customer_id
+        - order_type
+        - items
+      properties:
+        customer_id:
+          type: integer
+          example: 1
+        order_type:
+          type: string
+          enum: [online, door_to_door]
+          example: online
+        delivery_address:
+          type: string
+        notes:
+          type: string
+        items:
+          type: array
+          description: List of products to order. System will automatically select lowest price vendors.
+          items:
+            type: object
+            required:
+              - product_id
+              - quantity
+            properties:
+              product_id:
+                type: integer
+                example: 1
+              quantity:
+                type: integer
+                example: 10
+              vendor_product_id:
+                type: integer
+                description: Optional - if not provided, system selects lowest price vendor
+                nullable: true
+    
+    OrderUpdate:
+      type: object
+      properties:
+        order_status:
+          type: string
+          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+        payment_status:
+          type: string
+          enum: [pending, paid, partial, failed]
+        delivery_address:
+          type: string
+        notes:
+          type: string
+        discount_amount:
+          type: number
+          format: decimal
+        tax_amount:
+          type: number
+          format: decimal
+    
+    OrderWithItems:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItem'
+            customer:
+              $ref: '#/components/schemas/Customer'
+
+    # ============================================
+    # ORDER ITEM SCHEMAS
+    # ============================================
+    OrderItem:
+      type: object
+      properties:
+        order_item_id:
+          type: integer
+          example: 1
+        order_id:
+          type: integer
+          example: 1
+        vendor_product_id:
+          type: integer
+          example: 12
+        product_id:
+          type: integer
+          example: 1
+        vendor_id:
+          type: integer
+          example: 2
+        quantity:
+          type: integer
+          example: 10
+        unit_price:
+          type: number
+          format: decimal
+          example: 21.16
+        discount_percentage:
+          type: number
+          format: decimal
+          example: 0.00
+        tax_percentage:
+          type: number
+          format: decimal
+          example: 0.00
+        line_total:
+          type: number
+          format: decimal
+          example: 211.60
+        created_at:
+          type: string
+          format: date-time
+        product_name:
+          type: string
+          example: Paracetamol 500mg
+          description: Joined from products table
+        vendor_name:
+          type: string
+          example: HealthCare Distributors
+          description: Joined from vendors table
+    
+    OrderItemUpdate:
+      type: object
+      properties:
+        quantity:
+          type: integer
+        unit_price:
+          type: number
+          format: decimal
+        discount_percentage:
+          type: number
+          format: decimal
+        tax_percentage:
+          type: number
+          format: decimal
+
+    # ============================================
+    # VENDOR ORDER SCHEMAS
+    # ============================================
+    VendorOrder:
+      type: object
+      properties:
+        vendor_order_id:
+          type: integer
+          example: 1
+        vendor_id:
+          type: integer
+          example: 1
+        po_number:
+          type: string
+          example: PO-2026-001
+        order_date:
+          type: string
+          format: date-time
+        total_amount:
+          type: number
+          format: decimal
+          example: 5000.00
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, received, cancelled]
+          example: pending
+        expected_delivery_date:
+          type: string
+          format: date
+          nullable: true
+        actual_delivery_date:
+          type: string
+          format: date
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    VendorOrderCreate:
+      type: object
+      required:
+        - vendor_id
+        - total_amount
+      properties:
+        vendor_id:
+          type: integer
+          example: 1
+        total_amount:
+          type: number
+          format: decimal
+          example: 5000.00
+        expected_delivery_date:
+          type: string
+          format: date
+        notes:
+          type: string
+    
+    VendorOrderUpdate:
+      type: object
+      properties:
+        total_amount:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, received, cancelled]
+        expected_delivery_date:
+          type: string
+          format: date
+        actual_delivery_date:
+          type: string
+          format: date
+        notes:
+          type: string
+
+    # ============================================
+    # ANALYTICS SCHEMAS
+    # ============================================
+    SalesSummary:
+      type: object
+      properties:
+        total_orders:
+          type: integer
+          example: 156
+        total_revenue:
+          type: number
+          format: decimal
+          example: 45678.50
+        avg_order_value:
+          type: number
+          format: decimal
+          example: 292.81
+        online_orders:
+          type: integer
+          example: 120
+        door_to_door_orders:
+          type: integer
+          example: 36
+        period_data:
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                type: string
+                example: "2026-02-01"
+              orders:
+                type: integer
+              revenue:
+                type: number
+                format: decimal
+    
+    TopProduct:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        units_sold:
+          type: integer
+          example: 450
+        total_revenue:
+          type: number
+          format: decimal
+          example: 12340.50
+        times_ordered:
+          type: integer
+          example: 89
+    
+    TopCustomer:
+      type: object
+      properties:
+        customer_id:
+          type: integer
+        customer_name:
+          type: string
+        customer_type:
+          type: string
+        total_orders:
+          type: integer
+          example: 25
+        total_spent:
+          type: number
+          format: decimal
+          example: 15678.90
+    
+    VendorRevenue:
+      type: object
+      properties:
+        vendor_id:
+          type: integer
+        vendor_name:
+          type: string
+        orders_fulfilled:
+          type: integer
+          example: 78
+        units_sold:
+          type: integer
+          example: 1250
+        total_revenue:
+          type: number
+          format: decimal
+          example: 34567.80
+    
+    InventoryStatus:
+      type: object
+      properties:
+        total_products:
+          type: integer
+          example: 250
+        total_stock:
+          type: integer
+          example: 15678
+        low_stock_products:
+          type: integer
+          example: 23
+        out_of_stock:
+          type: integer
+          example: 5
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: integer
+              product_name:
+                type: string
+              total_stock:
+                type: integer
+              vendors_carrying:
+                type: integer
+    
+    ExpiringProduct:
+      type: object
+      properties:
+        vendor_product_id:
+          type: integer
+        product_name:
+          type: string
+        vendor_name:
+          type: string
+        stock_quantity:
+          type: integer
+        expiry_date:
+          type: string
+          format: date
+        days_to_expiry:
+          type: integer
+          example: 15
+
+    # ============================================
+    # UTILITY SCHEMAS
+    # ============================================
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total_items:
+          type: integer
+          example: 156
+        total_pages:
+          type: integer
+          example: 8
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid input data
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authorization header using the Bearer scheme
+
+security:
+  - BearerAuth: []
