@@ -1,0 +1,17 @@
+
+https://github.com/wdkeyser02/SpringSecurityCloudGatewayAngularTutorial/tree/cloud_gateway
+
+
+https://www.youtube.com/watch?v=0AhK6o39Cvc&list=PLbuI9mmWSoUGBGKrD5W4xYVs6zdt9rW_k&index=33
+http://127.0.0.1:9000/login
+
+Callback URL http://127.0.0.1:8090/login/oauth2/code/gateway
+
+Auth URL http://127.0.0.1:9000/oauth2/authorize
+
+Access Token URL http://127.0.0.1:9000/oauth2/token
+
+Client ID : client
+Client Secret: secret
+
+Scope : openid profile
