@@ -25,6 +25,5 @@
         <module>authorization-server</module>
         <module>service-registry</module>
 		 <module>api-gateway</module>
-		 <module>core-service</module>
     </modules>
 </project>
