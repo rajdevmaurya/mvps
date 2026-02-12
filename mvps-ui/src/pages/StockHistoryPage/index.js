@@ -100,7 +100,7 @@ const StockHistoryPage = () => {
             </thead>
             <tbody>
               {filteredRows.map((row, idx) => (
-                <tr key={`${row.vendorProductId ?? idx}-${row.changedAt ?? idx}`}>
+                <tr key={`${row.vendorProductId ?? idx}-${row.changedAt ?? idx}-${idx}`}>
                   <td>
                     {row.changedAt
                       ? new Date(row.changedAt).toLocaleString()

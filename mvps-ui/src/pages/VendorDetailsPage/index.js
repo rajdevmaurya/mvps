@@ -207,7 +207,7 @@ const VendorDetailsPage = () => {
           vp.stock_quantity != null && vp.stock_quantity !== ''
             ? String(vp.stock_quantity)
             : (vp.stockQuantity != null && vp.stockQuantity !== '' ? String(vp.stockQuantity) : ''),
-        expiry_date: vp.expiry_date || vp.expiryDate || '',
+        expiry_date: toDateInputValue(vp.expiry_date || vp.expiryDate || ''),
         is_available:
           typeof vp.is_available === 'boolean' ? vp.is_available : (typeof vp.isAvailable === 'boolean' ? vp.isAvailable : true),
         delivery_time_days:
@@ -230,6 +230,19 @@ const VendorDetailsPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const toDateInputValue = (value) => {
+    if (!value) return '';
+    const raw = Array.isArray(value) ? value[0] : value;
+    if (typeof raw !== 'string' && typeof raw !== 'number') return '';
+    try {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toISOString().slice(0, 10);
+    } catch {
+      return '';
+    }
   };
 
   const handleVendorProductModalClose = () => {

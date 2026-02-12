@@ -49,8 +49,16 @@ const Header = () => {
             const normalizedName = (name || '').trim().toUpperCase();
 
             if (!normalizedName || normalizedName === 'ANONYMOUS') {
-              setIsAuthenticated(false);
-              setUserName('');
+                      setIsAuthenticated(false);
+                      setUserName('');
+                      // anonymous - redirect to login
+                      try {
+                        if (!window.location.pathname.startsWith('/oauth2')) {
+                          window.location.href = '/oauth2/authorization/gateway';
+                        }
+                      } catch (e) {
+                        // ignore in SSR or test env
+                      }
             } else {
               setIsAuthenticated(true);
               setUserName(name);
@@ -84,16 +92,17 @@ const Header = () => {
   const handleAuthClick = useCallback(() => {
     if (isAuthenticated) {
       try {
-        // Clear any locally stored auth tokens/state
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('id_token');
-        localStorage.removeItem('refresh_token');
-        sessionStorage.clear();
+        // clear in-memory token and server refresh cookie
+        import('../auth/tokenManager').then(mod => {
+          try { mod.default.clear(); } catch (e) { /* ignore */ }
+          // continue logout via OIDC
+          window.location.href = '/logout';
+        }).catch(() => {
+          window.location.href = '/logout';
+        });
       } catch (e) {
-        // ignore storage errors during logout
+        window.location.href = '/logout';
       }
-
-      window.location.href = '/logout';
     } else {
       window.location.href = '/oauth2/authorization/gateway';
     }

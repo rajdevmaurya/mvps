@@ -4,6 +4,8 @@
 // go to /mvps-api/** on the gateway, which then forwards to mvps-api.
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/mvps-api/v1';
 
+import tokenManager from './auth/tokenManager';
+
 function buildUrl(path, params) {
   const base = API_BASE_URL.replace(/\/$/, '');
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -25,7 +27,21 @@ function buildUrl(path, params) {
 
 export async function fetchData(path, params) {
   const url = buildUrl(path, params);
-  const response = await fetch(url);
+  let response = await fetch(url, {
+    headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
+  });
+
+  if (response.status === 401) {
+    // try refresh once
+    try {
+      await tokenManager.refresh();
+      response = await fetch(url, {
+        headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
+      });
+    } catch (e) {
+      // refresh failed - fall through to existing 401 handling
+    }
+  }
 
   if (!response.ok) {
     if (response.status === 401 && typeof window !== 'undefined') {
@@ -51,6 +67,7 @@ export async function postJson(path, body) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -75,6 +92,7 @@ export async function putJson(path, body) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -103,6 +121,7 @@ export async function patchJson(path, body) {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -128,6 +147,7 @@ export async function deleteJson(path) {
   const url = buildUrl(path);
   const response = await fetch(url, {
     method: 'DELETE',
+    headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
   });
 
   if (!response.ok) {

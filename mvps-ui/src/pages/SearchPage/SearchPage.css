@@ -74,3 +74,18 @@
 .search-form-actions .error-message {
   margin: 0;
 }
+
+/* Primary button style to match other pages */
+.search-page .btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

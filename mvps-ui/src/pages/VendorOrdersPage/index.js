@@ -99,6 +99,20 @@ const VendorOrdersPage = () => {
     }
   };
 
+  const toDateInputValue = (value) => {
+    if (!value) return '';
+    const raw = Array.isArray(value) ? value[0] : value;
+    // accept number or string
+    if (typeof raw !== 'string' && typeof raw !== 'number') return '';
+    try {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toISOString().slice(0, 10);
+    } catch {
+      return '';
+    }
+  };
+
   useEffect(() => {
     async function loadVendors() {
       try {
@@ -146,8 +160,7 @@ const VendorOrdersPage = () => {
           vendor?.vendor_name ?? vendor?.vendorName ?? `Vendor #${vendorId || ''}`;
 
         const orderDateRaw = o.order_date ?? o.orderDate;
-        const expectedDateRaw =
-          o.expected_delivery_date ?? o.expectedDeliveryDate;
+        const expectedDateRaw = o.expected_delivery_date ?? o.expectedDeliveryDate;
         const actualDateRaw = o.actual_delivery_date ?? o.actualDeliveryDate;
 
         return {
@@ -223,12 +236,12 @@ const VendorOrdersPage = () => {
     }
 
     const payload = {
-      vendor_id: vendorIdNum,
-      total_amount: totalAmountNum,
+      vendorId: vendorIdNum,
+      totalAmount: totalAmountNum,
     };
 
     if (newOrder.expectedDeliveryDate) {
-      payload.expected_delivery_date = newOrder.expectedDeliveryDate;
+      payload.expectedDeliveryDate = newOrder.expectedDeliveryDate;
     }
     if (newOrder.notes) {
       payload.notes = newOrder.notes;
@@ -270,10 +283,12 @@ const VendorOrdersPage = () => {
         total_amount:
           data.total_amount ?? data.totalAmount ?? '',
         status: data.status ?? '',
-        expected_delivery_date:
-          data.expected_delivery_date ?? data.expectedDeliveryDate ?? '',
-        actual_delivery_date:
-          data.actual_delivery_date ?? data.actualDeliveryDate ?? '',
+        expected_delivery_date: toDateInputValue(
+          data.expected_delivery_date ?? data.expectedDeliveryDate ?? ''
+        ),
+        actual_delivery_date: toDateInputValue(
+          data.actual_delivery_date ?? data.actualDeliveryDate ?? ''
+        ),
         notes: data.notes ?? '',
       });
     } catch (e) {
@@ -307,17 +322,17 @@ const VendorOrdersPage = () => {
     if (detailForm.total_amount !== '') {
       const amount = Number(detailForm.total_amount);
       if (!Number.isNaN(amount)) {
-        payload.total_amount = amount;
+        payload.totalAmount = amount;
       }
     }
     if (detailForm.status) {
       payload.status = detailForm.status;
     }
     if (detailForm.expected_delivery_date) {
-      payload.expected_delivery_date = detailForm.expected_delivery_date;
+      payload.expectedDeliveryDate = detailForm.expected_delivery_date;
     }
     if (detailForm.actual_delivery_date) {
-      payload.actual_delivery_date = detailForm.actual_delivery_date;
+      payload.actualDeliveryDate = detailForm.actual_delivery_date;
     }
     if (detailForm.notes) {
       payload.notes = detailForm.notes;
@@ -325,7 +340,47 @@ const VendorOrdersPage = () => {
 
     try {
       setDetailSaving(true);
-      await putJson(`/vendor-orders/${selectedOrderId}`, payload);
+      // debug: log payload
+      // eslint-disable-next-line no-console
+      console.log('PUT /vendor-orders/', selectedOrderId, payload);
+      const res = await putJson(`/vendor-orders/${selectedOrderId}`, payload);
+      // eslint-disable-next-line no-console
+      console.log('PUT response:', res);
+
+      // if server returned updated data, update detail and list immediately
+      const updated = res?.data || res;
+      if (updated) {
+        setOrderDetail(updated);
+        setDetailForm({
+          total_amount: updated.total_amount ?? updated.totalAmount ?? '',
+          status: updated.status ?? '',
+          expected_delivery_date: toDateInputValue(updated.expected_delivery_date ?? updated.expectedDeliveryDate ?? ''),
+          actual_delivery_date: toDateInputValue(updated.actual_delivery_date ?? updated.actualDeliveryDate ?? ''),
+          notes: updated.notes ?? '',
+        });
+      }
+      // optimistically update the list row so the table reflects saved dates immediately
+      setOrders((prev) =>
+        prev.map((o) => {
+          if (o.id !== selectedOrderId) return o;
+          return {
+            ...o,
+            totalAmount:
+              payload.totalAmount !== undefined ? payload.totalAmount : o.totalAmount,
+            expectedDeliveryDate:
+              payload.expectedDeliveryDate !== undefined
+                ? formatDate(payload.expectedDeliveryDate)
+                : o.expectedDeliveryDate,
+            actualDeliveryDate:
+              payload.actualDeliveryDate !== undefined
+                ? formatDate(payload.actualDeliveryDate)
+                : o.actualDeliveryDate,
+            status: payload.status !== undefined ? payload.status : o.status,
+          };
+        }),
+      );
+
+      // refresh list and details to ensure authoritative server state
       await loadOrders(page);
       await openDetailModal(selectedOrderId);
     } catch (e) {

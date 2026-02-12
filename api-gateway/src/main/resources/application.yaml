@@ -63,3 +63,8 @@ info:
   app:
     name: ${spring.application.name}
 
+# allowed CORS origins for browser UI (used by SecurityConfig)
+app:
+  cors:
+    allowed-origins: "http://localhost:4200"
+
