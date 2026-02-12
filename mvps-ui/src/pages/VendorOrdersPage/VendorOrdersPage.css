@@ -125,3 +125,50 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+/* Table styling and responsive wrapper (ensure tables behave on mobile) */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+/* Make toolbar inputs and filters stack on small screens */
+.vendor-orders-page .toolbar {
+  align-items: stretch;
+}
+
+.vendor-orders-page .toolbar .input {
+  flex: 1 1 180px;
+  min-width: 140px;
+}
+
+@media (max-width: 600px) {
+  .vendor-orders-page .toolbar,
+  .vendor-orders-page .filters-group,
+  .vendor-orders-page .actions-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .vendor-orders-page .toolbar .input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .vendor-orders-modal {
+    max-width: 95%;
+    margin: 0 0.5rem;
+    padding: 1rem;
+  }
+}
