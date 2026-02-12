@@ -1,0 +1,122 @@
+.products-page .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.products-page select,
+.products-page input {
+  max-width: 260px;
+}
+
+.products-page .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.products-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.products-page .toolbar .input {
+  max-width: 260px;
+}
+
+.products-page .btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.products-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.products-page .link-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.products-page .product-form {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.products-page .product-form__title {
+  margin: 0 0 0.75rem;
+}
+
+.products-page .product-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.products-page .product-form__full {
+  grid-column: 1 / -1;
+}
+
+.products-page .product-form label {
+  display: block;
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.35rem;
+}
+
+.products-page .product-form .input,
+.products-page .product-form textarea,
+.products-page .product-form select {
+  width: 100%;
+}
+
+.products-page .product-form__checkbox-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.products-page .product-form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.products-page .btn-secondary {
+  background-color: #e5e7eb;
+  color: #111827;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.products-page .product-vendors {
+  margin-top: 2rem;
+}
+
+.products-page .product-vendors__title {
+  margin-bottom: 0.75rem;
+}
+
+.products-page .product-vendors__empty {
+  color: #64748b;
+}

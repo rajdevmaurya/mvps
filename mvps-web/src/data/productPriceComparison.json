@@ -1,0 +1,46 @@
+[
+  {
+    "productId": 1,
+    "productName": "Paracetamol 500mg",
+    "vendorId": 1,
+    "vendorName": "HealthCare Distributors",
+    "costPrice": 22.0,
+    "discountPercentage": 4.0,
+    "finalPrice": 21.16,
+    "stockQuantity": 800,
+    "priceStatus": "lowest"
+  },
+  {
+    "productId": 1,
+    "productName": "Paracetamol 500mg",
+    "vendorId": 2,
+    "vendorName": "Pharma Solutions",
+    "costPrice": 23.5,
+    "discountPercentage": 0.0,
+    "finalPrice": 23.5,
+    "stockQuantity": 500,
+    "priceStatus": "higher"
+  },
+  {
+    "productId": 2,
+    "productName": "Vitamin D3 60K",
+    "vendorId": 2,
+    "vendorName": "Pharma Solutions",
+    "costPrice": 80.0,
+    "discountPercentage": 8.0,
+    "finalPrice": 73.6,
+    "stockQuantity": 250,
+    "priceStatus": "lowest"
+  },
+  {
+    "productId": 2,
+    "productName": "Vitamin D3 60K",
+    "vendorId": 3,
+    "vendorName": "MediSupply India Pvt Ltd",
+    "costPrice": 84.0,
+    "discountPercentage": 5.0,
+    "finalPrice": 79.8,
+    "stockQuantity": 200,
+    "priceStatus": "higher"
+  }
+]

@@ -1,0 +1,101 @@
+/* Global styles and variables aligned with echo-ui_v8 */
+:root {
+  --primary-color: #00372c;
+  --primary-light: #50b19e;
+  --primary-light-hover: #36776b;
+  --primary-dark: #022a22;
+  --secondary-color: #022a22;
+
+  --text-color: #696969;
+  --secondary-text-bg: rgb(255 255 255 / 10%);
+  --secondary-text-color: #fff;
+  --gray-color: #f9f9f9;
+  --dark-color: #333;
+  --label-color: #555;
+  --border-color: #ddd;
+
+  --white: #fff;
+  --black: #000;
+  --red: #c62828;
+  --red-2: #ff7373;
+
+  --card-padding: 1.25rem;
+  --box-shadow: 0 5px 5px 0 rgb(0 0 0 / 12%);
+  --form-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background-color: var(--gray-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.container {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.container .row {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+/* primary nav (match echo_ui_v8 behaviour) */
+.primary-menu a.active,
+nav .primary-menu a:hover,
+.primary-menu:hover li:hover a,
+.primary-menu:hover li:hover a.active {
+  background: var(--secondary-text-bg);
+}
+
+.primary-menu:hover li:not(:hover) a,
+.primary-menu:hover li:not(:hover) a.active {
+  background: transparent;
+}
+
+.primary-menu li li a.active,
+nav .primary-menu li li a:hover,
+.primary-menu:hover li:hover li a.active,
+.primary-menu:hover li:hover li a:hover {
+  background: rgb(0 0 0 / 5%);
+}
+
+.primary-menu .dropdown-trigger i.right {
+  margin-left: 0.5rem;
+}

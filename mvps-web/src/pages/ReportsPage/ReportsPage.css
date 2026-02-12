@@ -1,0 +1,30 @@
+.reports-page section + section {
+  margin-top: 2rem;
+}
+
+.reports-page h3 {
+  margin-bottom: 0.5rem;
+}
+
+.reports-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.reports-section__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reports-section__controls .input {
+  min-width: 140px;
+}
+
+.label-inline {
+  font-size: 0.9rem;
+  color: #555;
+}

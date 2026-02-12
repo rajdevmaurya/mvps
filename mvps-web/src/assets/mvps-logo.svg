@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="40" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MVPS</title>
+  <desc id="desc">Placeholder logo for MVPS UI. Replace with echo_ui_v8 logo as needed.</desc>
+  <rect width="180" height="40" rx="4" fill="#00372c" />
+  <text x="20" y="26" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#ffffff" font-weight="600">MVPS</text>
+</svg>

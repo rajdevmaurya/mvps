@@ -1,0 +1,103 @@
+.header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.top-nav {
+  padding: 0.1rem 0;
+  background-color: var(--primary-color);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.brand-logo img {
+  max-width: 150px;
+  display: block;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.user-greeting {
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.auth-link {
+  background: transparent;
+  border: 1px solid var(--secondary-text-color);
+  color: var(--secondary-text-color);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.auth-link:hover {
+  background: var(--secondary-text-bg);
+}
+
+.bottom-nav {
+  background-color: var(--primary-dark);
+  height: 100%;
+}
+
+.primary-menu {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.primary-menu li {
+  height: 100%;
+}
+
+.primary-menu li a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 1.25rem;
+  font-size: 0.95rem;
+  color: var(--secondary-text-color);
+  text-decoration: none;
+}
+
+/* Ensure nav container and items fill the bottom nav height */
+.bottom-nav .nav-container {
+  height: 100%;
+  align-items: stretch;
+}
+
+@media only screen and (max-width: 992px) {
+  .brand-logo img {
+    height: 56px;
+    object-fit: contain;
+  }
+}
+
+@media only screen and (max-width: 601px) {
+  .brand-logo img {
+    height: 48px;
+  }
+}

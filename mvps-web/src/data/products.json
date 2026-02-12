@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "productName": "Paracetamol 500mg",
+    "genericName": "Paracetamol",
+    "category": "Medicines",
+    "manufacturer": "Cipla",
+    "unitOfMeasure": "strip",
+    "prescriptionRequired": false
+  },
+  {
+    "id": 2,
+    "productName": "Vitamin D3 60K",
+    "genericName": "Cholecalciferol",
+    "category": "Supplements",
+    "manufacturer": "Sun Pharma",
+    "unitOfMeasure": "capsule",
+    "prescriptionRequired": false
+  },
+  {
+    "id": 3,
+    "productName": "Hand Sanitizer 500ml",
+    "genericName": "Alcohol Based Sanitizer",
+    "category": "Hygiene",
+    "manufacturer": "Himalaya",
+    "unitOfMeasure": "bottle",
+    "prescriptionRequired": false
+  }
+]

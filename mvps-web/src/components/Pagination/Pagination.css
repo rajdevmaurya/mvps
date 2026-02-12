@@ -1,0 +1,40 @@
+.pagination-bar {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pagination-summary {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.pagination-bar .page-button,
+.pagination-bar .page-number {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.pagination-bar .page-number.active {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+
+.pagination-bar .page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

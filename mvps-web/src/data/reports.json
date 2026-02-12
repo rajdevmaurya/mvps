@@ -1,0 +1,14 @@
+{
+  "dailySales": [
+    { "saleDate": "2026-02-07", "orderType": "online", "totalOrders": 18, "totalRevenue": 12500.0 },
+    { "saleDate": "2026-02-07", "orderType": "door_to_door", "totalOrders": 5, "totalRevenue": 8400.0 }
+  ],
+  "topProducts": [
+    { "productName": "Paracetamol 500mg", "timesOrdered": 120, "totalQuantitySold": 950, "totalRevenue": 18000.0 },
+    { "productName": "Vitamin D3 60K", "timesOrdered": 80, "totalQuantitySold": 600, "totalRevenue": 15000.0 }
+  ],
+  "vendorPerformance": [
+    { "vendorName": "Pharma Solutions", "ordersFulfilled": 220, "totalUnitsSold": 4200, "totalRevenueFromVendor": 320000.0 },
+    { "vendorName": "HealthCare Distributors", "ordersFulfilled": 180, "totalUnitsSold": 3600, "totalRevenueFromVendor": 270000.0 }
+  ]
+}

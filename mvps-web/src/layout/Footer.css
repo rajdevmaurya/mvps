@@ -1,0 +1,105 @@
+.footer {
+  padding: 4rem 0 2rem;
+  box-shadow: 0 -2px 4px rgb(0 0 0 / 20%);
+  color: var(--white);
+  background-color: var(--secondary-color);
+}
+
+.footer h4 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+.footer p {
+  color: inherit;
+}
+
+.footer a {
+  color: inherit;
+  display: inline-block;
+  padding-bottom: 0.01rem;
+  border-bottom: 1px solid transparent;
+}
+
+.footer a:hover {
+  border-block-color: var(--white);
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer ul li {
+  margin-bottom: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -1rem;
+}
+
+.col {
+  padding: 0 1rem;
+}
+
+.col-3 {
+  flex: 1 1 25%;
+  min-width: 220px;
+}
+
+.social-list {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-list a,
+.social-list a svg {
+  display: block;
+}
+
+.social-list a {
+  background-color: var(--white);
+  width: 3rem;
+  height: 3rem;
+  color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid;
+}
+
+.social-list a:hover {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.social-list svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+}
+
+.footer-bottom {
+  padding-top: 2rem;
+  border-top: 1px solid rgb(255 255 255 / 40%);
+}
+
+@media only screen and (min-width: 992px) {
+  .footer-bottom {
+    margin-top: 3rem;
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .footer {
+    padding-bottom: 120px;
+  }
+}

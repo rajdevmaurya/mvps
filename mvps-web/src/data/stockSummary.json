@@ -1,0 +1,26 @@
+[
+  {
+    "productId": 1,
+    "productName": "Paracetamol 500mg",
+    "totalStockAllVendors": 1300,
+    "numberOfVendors": 3,
+    "lowestPrice": 21.16,
+    "highestPrice": 26.0
+  },
+  {
+    "productId": 2,
+    "productName": "Vitamin D3 60K",
+    "totalStockAllVendors": 600,
+    "numberOfVendors": 2,
+    "lowestPrice": 73.6,
+    "highestPrice": 79.8
+  },
+  {
+    "productId": 3,
+    "productName": "Hand Sanitizer 500ml",
+    "totalStockAllVendors": 550,
+    "numberOfVendors": 2,
+    "lowestPrice": 144.5,
+    "highestPrice": 155.0
+  }
+]

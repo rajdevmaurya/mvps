@@ -1,0 +1,24 @@
+.pricing-page .comparison-header {
+  margin: 1.5rem 0 0.75rem;
+}
+
+.pricing-page .filters {
+  margin-bottom: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.badge.success {
+  background-color: #bbf7d0;
+  color: #166534;
+}
+
+.badge.muted {
+  background-color: #e2e8f0;
+  color: #475569;
+}

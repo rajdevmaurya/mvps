@@ -1,0 +1,76 @@
+.search-page .search-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 960px) {
+  .search-page .search-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+.search-panel {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1.25rem 1.5rem;
+}
+
+.search-panel__header h2 {
+  margin: 0 0 0.25rem;
+}
+
+.search-panel__header p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.search-form {
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.search-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.search-form-row--two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.search-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  margin-top: 1.4rem;
+}
+
+.checkbox-inline label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.search-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.search-form-actions .error-message {
+  margin: 0;
+}

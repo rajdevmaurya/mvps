@@ -1,0 +1,48 @@
+[
+  {
+    "id": 101,
+    "orderNumber": "ORD-2026-001",
+    "orderDate": "2026-02-01T10:15:00Z",
+    "customerName": "Rahul Verma",
+    "orderType": "online",
+    "finalAmount": 500.0,
+    "paymentStatus": "paid",
+    "orderStatus": "delivered",
+    "items": [
+      {
+        "productName": "Paracetamol 500mg",
+        "vendorName": "HealthCare Distributors",
+        "quantity": 10,
+        "unitPrice": 21.16,
+        "lineTotal": 211.6
+      },
+      {
+        "productName": "Vitamin D3 60K",
+        "vendorName": "Pharma Solutions",
+        "quantity": 4,
+        "unitPrice": 73.6,
+        "lineTotal": 294.4
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "orderNumber": "ORD-2026-002",
+    "orderDate": "2026-02-02T09:45:00Z",
+    "customerName": "City Hospital",
+    "orderType": "door_to_door",
+    "finalAmount": 3200.0,
+    "paymentStatus": "pending",
+    "orderStatus": "pending",
+    "customerType": "institution",
+    "items": [
+      {
+        "productName": "Hand Sanitizer 500ml",
+        "vendorName": "Pharma Solutions",
+        "quantity": 20,
+        "unitPrice": 144.5,
+        "lineTotal": 2890.0
+      }
+    ]
+  }
+]

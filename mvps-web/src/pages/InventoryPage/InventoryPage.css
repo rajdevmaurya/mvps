@@ -1,0 +1,139 @@
+.inventory-page .table {
+  margin-top: 1rem;
+}
+
+.inventory-page .link-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.inventory-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.inventory-modal {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  padding: 1.25rem 1.5rem 1.5rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+}
+
+.inventory-modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.inventory-modal .btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.inventory-modal .btn-secondary {
+  background-color: #e5e7eb;
+  color: #111827;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.inventory-modal .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inventory-history {
+  margin-top: 2rem;
+}
+
+.inventory-history h2 {
+  margin-bottom: 0.5rem;
+}
+
+.inventory-history-entry {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.inventory-history-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.inventory-history-product {
+  font-weight: 500;
+}
+
+.inventory-history-timestamp {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.inventory-history-changes {
+  padding-left: 1rem;
+  margin: 0;
+}
+
+.inventory-history-changes li {
+  font-size: 0.875rem;
+}
+
+.inventory-modal-history {
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.inventory-modal-history h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.inventory-modal-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.inventory-modal-history-entry {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.inventory-modal-history-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.inventory-modal-history-change {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+}

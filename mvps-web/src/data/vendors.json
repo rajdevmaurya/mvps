@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "vendorName": "HealthCare Distributors",
+    "contactPerson": "Anil Sharma",
+    "email": "contact@hcdistributors.com",
+    "phone": "9876543200",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "gstNumber": "27ABCDE1234F1Z5",
+    "isActive": true,
+    "totalProducts": 42,
+    "averagePrice": 135.4,
+    "totalStock": 3200,
+    "timesCheapest": 18
+  },
+  {
+    "id": 2,
+    "vendorName": "Pharma Solutions",
+    "contactPerson": "Priya Nair",
+    "email": "sales@pharmasolutions.in",
+    "phone": "9876543201",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "gstNumber": "29ABCDE5678F1Z2",
+    "isActive": true,
+    "totalProducts": 35,
+    "averagePrice": 121.9,
+    "totalStock": 2450,
+    "timesCheapest": 24
+  },
+  {
+    "id": 3,
+    "vendorName": "MediSupply India Pvt Ltd",
+    "contactPerson": "Suresh Kumar",
+    "email": "info@medisupply.in",
+    "phone": "9876543202",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "gstNumber": "33ABCDE9876F1Z9",
+    "isActive": true,
+    "totalProducts": 28,
+    "averagePrice": 142.3,
+    "totalStock": 1850,
+    "timesCheapest": 11
+  }
+]
