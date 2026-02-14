@@ -1,9 +1,11 @@
 package com.echohealthcare.mvps.service;
 
 import com.echohealthcare.mvps.domain.Customer;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.repository.CustomerRepository;
 import com.echohealthcare.mvps.repository.OrderRepository;
+import com.echohealthcare.mvps.util.CursorPaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -52,6 +56,43 @@ public class CustomerService {
 		pagination.setTotalPages(customerPage.getTotalPages());
         response.setPagination(pagination);
         return response;
+    }
+
+    /**
+     * Get customers using cursor-based pagination.
+     */
+    public CursorPageResponse<com.echohealthcare.mvps.model.Customer> getCustomersByCursor(
+            String cursor,
+            Integer size,
+            String customerType,
+            Boolean isActive,
+            String city,
+            String search) {
+
+        int validatedSize = CursorPaginationUtils.validatePageSize(size);
+        Integer decodedCursor = CursorPaginationUtils.decodeCursor(cursor);
+
+        Pageable pageable = PageRequest.of(0, validatedSize + 1);
+        List<Customer> customers = customerRepository.searchByCursor(
+            decodedCursor, customerType, isActive, city, search, pageable);
+
+        boolean hasNext = customers.size() > validatedSize;
+        List<Customer> pageItems = hasNext ? customers.subList(0, validatedSize) : customers;
+
+        Integer nextCursorValue = hasNext && !pageItems.isEmpty()
+            ? pageItems.get(pageItems.size() - 1).getId()
+            : null;
+
+        List<com.echohealthcare.mvps.model.Customer> responseData = pageItems.stream()
+            .map(this::mapToModel)
+            .collect(Collectors.toList());
+
+        return new CursorPageResponse<>(
+            responseData,
+            validatedSize,
+            CursorPaginationUtils.encodeCursor(nextCursorValue),
+            hasNext
+        );
     }
 
     public CustomersPost201Response createCustomer(CustomerCreate request) {

@@ -1,6 +1,7 @@
 package com.echohealthcare.mvps.service;
 
 import com.echohealthcare.mvps.domain.ProductCategory;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.Pagination;
 import com.echohealthcare.mvps.model.ProductCreate;
 import com.echohealthcare.mvps.model.ProductUpdate;
@@ -11,11 +12,15 @@ import com.echohealthcare.mvps.model.ProductsProductIdGet200Response;
 import com.echohealthcare.mvps.model.ProductsProductIdPut200Response;
 import com.echohealthcare.mvps.repository.ProductCategoryRepository;
 import com.echohealthcare.mvps.repository.ProductRepository;
+import com.echohealthcare.mvps.util.CursorPaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -52,6 +57,55 @@ public class ProductService {
 		pagination.setTotalPages(productPage.getTotalPages());
         response.setPagination(pagination);
         return response;
+    }
+
+    /**
+     * Get products using cursor-based pagination.
+     * Provides efficient navigation through large product datasets.
+     *
+     * @param cursor the cursor from which to start fetching (null for first page)
+     * @param size the page size
+     * @param categoryId optional category filter
+     * @param isActive optional active status filter
+     * @param prescriptionRequired optional prescription requirement filter
+     * @param search optional search term
+     * @return cursor page response with products and navigation metadata
+     */
+    public CursorPageResponse<com.echohealthcare.mvps.model.Product> getProductsByCursor(
+            String cursor,
+            Integer size,
+            Integer categoryId,
+            Boolean isActive,
+            Boolean prescriptionRequired,
+            String search) {
+
+        int validatedSize = CursorPaginationUtils.validatePageSize(size);
+        Integer decodedCursor = CursorPaginationUtils.decodeCursor(cursor);
+
+        // Fetch size+1 to check if there's a next page
+        Pageable pageable = PageRequest.of(0, validatedSize + 1);
+        List<com.echohealthcare.mvps.domain.Product> products =
+            productRepository.searchByCursor(decodedCursor, categoryId, isActive, prescriptionRequired, search, pageable);
+
+        boolean hasNext = products.size() > validatedSize;
+        List<com.echohealthcare.mvps.domain.Product> pageItems = hasNext
+            ? products.subList(0, validatedSize)
+            : products;
+
+        Integer nextCursorValue = hasNext && !pageItems.isEmpty()
+            ? pageItems.get(pageItems.size() - 1).getId()
+            : null;
+
+        List<com.echohealthcare.mvps.model.Product> responseData = pageItems.stream()
+            .map(this::mapToModel)
+            .collect(Collectors.toList());
+
+        return new CursorPageResponse<>(
+            responseData,
+            validatedSize,
+            CursorPaginationUtils.encodeCursor(nextCursorValue),
+            hasNext
+        );
     }
 
     public ProductsPost201Response createProduct(ProductCreate request) {

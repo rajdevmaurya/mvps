@@ -1,14 +1,17 @@
 package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.CustomersApi;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.CustomerService;
 import com.echohealthcare.mvps.util.PaginationUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -55,6 +58,21 @@ public class CustomersController implements CustomersApi {
                                                                 Integer limit) {
         int[] validated = PaginationUtils.validatePagination(page, limit);
         return ResponseEntity.ok(customerService.getCustomers(customerType, isActive, city, search, validated[0], validated[1]));
+    }
+
+    /**
+     * Cursor-based pagination endpoint for customers.
+     */
+    @GetMapping("/customers/cursor")
+    public ResponseEntity<CursorPageResponse<Customer>> customersGetByCursor(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String customerType,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(customerService.getCustomersByCursor(
+            cursor, size, customerType, isActive, city, search));
     }
 
     @Override

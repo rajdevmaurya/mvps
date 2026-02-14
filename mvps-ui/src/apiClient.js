@@ -167,4 +167,58 @@ export async function deleteJson(path) {
   }
 }
 
+/**
+ * Fetch data with cursor-based pagination.
+ * This function is specifically designed for cursor pagination endpoints.
+ *
+ * @param {string} path - API path (e.g., '/products')
+ * @param {string|null} cursor - The cursor for pagination (null for first page)
+ * @param {number} size - Page size
+ * @param {object} otherParams - Additional query parameters
+ * @returns {Promise<object>} Response with { data, pageSize, nextCursor, hasNext }
+ */
+export async function fetchDataWithCursor(path, cursor, size, otherParams = {}) {
+  const params = {
+    ...otherParams,
+    size: size || 20
+  };
+
+  if (cursor) {
+    params.cursor = cursor;
+  }
+
+  // Add '/cursor' to the path if not already present
+  const cursorPath = path.endsWith('/cursor') ? path : `${path}/cursor`;
+  const url = buildUrl(cursorPath, params);
+
+  let response = await fetch(url, {
+    headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
+  });
+
+  if (response.status === 401) {
+    // Try refresh once
+    try {
+      await tokenManager.refresh();
+      response = await fetch(url, {
+        headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
+      });
+    } catch (e) {
+      // Refresh failed - fall through to existing 401 handling
+    }
+  }
+
+  if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      // Treat 401 as "not logged in" and start login flow via gateway
+      window.location.href = '/oauth2/authorization/gateway';
+    }
+    throw new Error(`API request failed with status ${response.status}`);
+  }
+
+  const json = await response.json();
+
+  // Cursor pagination endpoints return { data, pageSize, nextCursor, hasNext }
+  return json;
+}
+
 export { API_BASE_URL };

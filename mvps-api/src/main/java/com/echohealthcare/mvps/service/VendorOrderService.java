@@ -11,6 +11,7 @@ import com.echohealthcare.mvps.model.VendorOrdersVendorOrderIdGet200Response;
 import com.echohealthcare.mvps.model.VendorOrdersVendorOrderIdPut200Response;
 import com.echohealthcare.mvps.repository.VendorOrderRepository;
 import com.echohealthcare.mvps.repository.VendorRepository;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -143,15 +144,11 @@ public class VendorOrderService {
                 // leave null if status does not match enum
             }
         }
-        if (vendorOrder.getExpectedDeliveryDate() != null) {
-            model.expectedDeliveryDate(vendorOrder.getExpectedDeliveryDate());
-        }
-        if (vendorOrder.getActualDeliveryDate() != null) {
-            model.actualDeliveryDate(vendorOrder.getActualDeliveryDate());
-        }
-        if (vendorOrder.getNotes() != null) {
-            model.notes(vendorOrder.getNotes());
-        }
+        // Always set delivery dates and notes using Lombok setters with JsonNullable wrapping
+        // This ensures Jackson properly serializes these fields (even when null)
+        model.setExpectedDeliveryDate(JsonNullable.of(vendorOrder.getExpectedDeliveryDate()));
+        model.setActualDeliveryDate(JsonNullable.of(vendorOrder.getActualDeliveryDate()));
+        model.setNotes(JsonNullable.of(vendorOrder.getNotes()));
         model.setCreatedAt(vendorOrder.getCreatedAt());
         model.setUpdatedAt(vendorOrder.getUpdatedAt());
         return model;

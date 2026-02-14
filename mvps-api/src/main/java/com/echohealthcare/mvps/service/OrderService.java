@@ -5,12 +5,14 @@ import com.echohealthcare.mvps.domain.Order;
 import com.echohealthcare.mvps.domain.OrderItem;
 import com.echohealthcare.mvps.domain.Product;
 import com.echohealthcare.mvps.domain.VendorProduct;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.repository.CustomerRepository;
 import com.echohealthcare.mvps.repository.OrderItemRepository;
 import com.echohealthcare.mvps.repository.OrderRepository;
 import com.echohealthcare.mvps.repository.ProductRepository;
 import com.echohealthcare.mvps.repository.VendorProductRepository;
+import com.echohealthcare.mvps.util.CursorPaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -75,6 +78,47 @@ public class OrderService {
 		pagination.setTotalPages(orderPage.getTotalPages());
         response.setPagination(pagination);
         return response;
+    }
+
+    /**
+     * Get orders using cursor-based pagination.
+     */
+    public CursorPageResponse<com.echohealthcare.mvps.model.Order> getOrdersByCursor(
+            String cursor,
+            Integer size,
+            Integer customerId,
+            String orderStatus,
+            String paymentStatus,
+            String orderType,
+            LocalDate fromDate,
+            LocalDate toDate) {
+
+        int validatedSize = CursorPaginationUtils.validatePageSize(size);
+        Integer decodedCursor = CursorPaginationUtils.decodeCursor(cursor);
+        LocalDateTime from = fromDate != null ? fromDate.atStartOfDay() : null;
+        LocalDateTime to = toDate != null ? toDate.atTime(23, 59, 59) : null;
+
+        Pageable pageable = PageRequest.of(0, validatedSize + 1);
+        List<Order> orders = orderRepository.searchByCursor(
+            decodedCursor, customerId, orderStatus, paymentStatus, orderType, from, to, pageable);
+
+        boolean hasNext = orders.size() > validatedSize;
+        List<Order> pageItems = hasNext ? orders.subList(0, validatedSize) : orders;
+
+        Integer nextCursorValue = hasNext && !pageItems.isEmpty()
+            ? pageItems.get(pageItems.size() - 1).getId()
+            : null;
+
+        List<com.echohealthcare.mvps.model.Order> responseData = pageItems.stream()
+            .map(this::mapToOrderModel)
+            .collect(Collectors.toList());
+
+        return new CursorPageResponse<>(
+            responseData,
+            validatedSize,
+            CursorPaginationUtils.encodeCursor(nextCursorValue),
+            hasNext
+        );
     }
 
     public OrdersPost201Response createOrder(OrderCreate request) {

@@ -1,6 +1,7 @@
 package com.echohealthcare.mvps.service;
 
 import com.echohealthcare.mvps.domain.Vendor;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.Pagination;
 import com.echohealthcare.mvps.model.VendorCreate;
 import com.echohealthcare.mvps.model.VendorUpdate;
@@ -10,6 +11,7 @@ import com.echohealthcare.mvps.model.VendorsVendorIdDelete200Response;
 import com.echohealthcare.mvps.model.VendorsVendorIdGet200Response;
 import com.echohealthcare.mvps.model.VendorsVendorIdPut200Response;
 import com.echohealthcare.mvps.repository.VendorRepository;
+import com.echohealthcare.mvps.util.CursorPaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -45,6 +49,42 @@ public class VendorService {
 		pagination.setTotalPages(vendorPage.getTotalPages());
 		response.setPagination(pagination);
 		return response;
+	}
+
+	/**
+	 * Get vendors using cursor-based pagination.
+	 */
+	public CursorPageResponse<com.echohealthcare.mvps.model.Vendor> getVendorsByCursor(
+			String cursor,
+			Integer size,
+			Boolean isActive,
+			String city,
+			String state) {
+
+		int validatedSize = CursorPaginationUtils.validatePageSize(size);
+		Integer decodedCursor = CursorPaginationUtils.decodeCursor(cursor);
+
+		Pageable pageable = PageRequest.of(0, validatedSize + 1);
+		List<Vendor> vendors = vendorRepository.searchByCursor(
+			decodedCursor, isActive, city, state, pageable);
+
+		boolean hasNext = vendors.size() > validatedSize;
+		List<Vendor> pageItems = hasNext ? vendors.subList(0, validatedSize) : vendors;
+
+		Integer nextCursorValue = hasNext && !pageItems.isEmpty()
+			? pageItems.get(pageItems.size() - 1).getId()
+			: null;
+
+		List<com.echohealthcare.mvps.model.Vendor> responseData = pageItems.stream()
+			.map(this::mapToVendorModel)
+			.collect(Collectors.toList());
+
+		return new CursorPageResponse<>(
+			responseData,
+			validatedSize,
+			CursorPaginationUtils.encodeCursor(nextCursorValue),
+			hasNext
+		);
 	}
 
 	public VendorsPost201Response createVendor(VendorCreate request) {

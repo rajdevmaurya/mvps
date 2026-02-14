@@ -1,14 +1,17 @@
 package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.VendorsApi;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.VendorService;
 import com.echohealthcare.mvps.service.AnalyticsService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,6 +32,20 @@ public class VendorsController implements VendorsApi {
                                                             Integer page,
                                                             Integer limit) {
         return ResponseEntity.ok(vendorService.getVendors(isActive, city, state, page, limit));
+    }
+
+    /**
+     * Cursor-based pagination endpoint for vendors.
+     */
+    @GetMapping("/vendors/cursor")
+    public ResponseEntity<CursorPageResponse<Vendor>> vendorsGetByCursor(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state) {
+        return ResponseEntity.ok(vendorService.getVendorsByCursor(
+            cursor, size, isActive, city, state));
     }
 
     @Override

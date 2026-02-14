@@ -103,6 +103,11 @@ const VendorOrdersPage = () => {
       const data = res.data || [];
       const pagination = res.pagination;
 
+      // Debug: log first order to see what fields are available
+      if (data.length > 0) {
+        console.log('First vendor order from API:', data[0]);
+      }
+
       const mapped = data
         .map((o) => {
           if (!o) return null;
@@ -152,6 +157,19 @@ const VendorOrdersPage = () => {
       setLoading(false);
     }
   };
+  // Load vendors on mount
+  useEffect(() => {
+    async function loadVendors() {
+      try {
+        const res = await fetchData('/vendors', { is_active: true, page: 1, limit: 1000 });
+        setVendors(res.data || []);
+      } catch (e) {
+        console.error('Failed to load vendors:', e);
+      }
+    }
+    loadVendors();
+  }, []);
+
   useEffect(() => {
     loadOrders(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps

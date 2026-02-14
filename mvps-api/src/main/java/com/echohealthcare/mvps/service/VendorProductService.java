@@ -4,11 +4,13 @@ import com.echohealthcare.mvps.domain.Product;
 import com.echohealthcare.mvps.domain.Vendor;
 import com.echohealthcare.mvps.domain.VendorProduct;
 import com.echohealthcare.mvps.domain.VendorStockMovement;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.repository.ProductRepository;
 import com.echohealthcare.mvps.repository.VendorProductRepository;
 import com.echohealthcare.mvps.repository.VendorRepository;
 import com.echohealthcare.mvps.repository.VendorStockMovementRepository;
+import com.echohealthcare.mvps.util.CursorPaginationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -67,6 +70,44 @@ public class VendorProductService {
 		pagination.setTotalPages(vendorProductPage.getTotalPages());
         response.setPagination(pagination);
         return response;
+    }
+
+    /**
+     * Get vendor products using cursor-based pagination.
+     */
+    public CursorPageResponse<com.echohealthcare.mvps.model.VendorProduct> getVendorProductsByCursor(
+            String cursor,
+            Integer size,
+            Integer vendorId,
+            Integer productId,
+            Boolean isAvailable,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        int validatedSize = CursorPaginationUtils.validatePageSize(size);
+        Integer decodedCursor = CursorPaginationUtils.decodeCursor(cursor);
+
+        Pageable pageable = PageRequest.of(0, validatedSize + 1);
+        List<VendorProduct> vendorProducts = vendorProductRepository.searchByCursor(
+            decodedCursor, vendorId, productId, isAvailable, minPrice, maxPrice, pageable);
+
+        boolean hasNext = vendorProducts.size() > validatedSize;
+        List<VendorProduct> pageItems = hasNext ? vendorProducts.subList(0, validatedSize) : vendorProducts;
+
+        Integer nextCursorValue = hasNext && !pageItems.isEmpty()
+            ? pageItems.get(pageItems.size() - 1).getId()
+            : null;
+
+        List<com.echohealthcare.mvps.model.VendorProduct> responseData = pageItems.stream()
+            .map(this::mapToModel)
+            .collect(Collectors.toList());
+
+        return new CursorPageResponse<>(
+            responseData,
+            validatedSize,
+            CursorPaginationUtils.encodeCursor(nextCursorValue),
+            hasNext
+        );
     }
 
     public VendorProductsPost201Response createVendorProduct(VendorProductCreate request) {

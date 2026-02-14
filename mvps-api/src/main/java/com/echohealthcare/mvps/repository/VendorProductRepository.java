@@ -31,4 +31,33 @@ public interface VendorProductRepository extends JpaRepository<VendorProduct, In
             "WHERE vp.available = true AND vp.stockQuantity > 0 " +
             "AND ( :categoryId IS NULL OR p.category.id = :categoryId )")
     List<VendorProduct> findForLowestPriceView(@Param("categoryId") Integer categoryId);
+
+    /**
+     * Cursor-based pagination query for vendor products.
+     * Fetches vendor products with ID greater than the cursor, maintaining all filter conditions.
+     *
+     * @param cursor the cursor (vendor product ID) from which to start fetching (null for first page)
+     * @param vendorId optional vendor filter
+     * @param productId optional product filter
+     * @param available optional availability filter
+     * @param minPrice optional minimum price filter
+     * @param maxPrice optional maximum price filter
+     * @param pageable pagination information (size and sort)
+     * @return list of vendor products matching the criteria
+     */
+    @Query("select vp from VendorProduct vp " +
+           "where (:cursor is null or vp.id > :cursor) " +
+           "and (:vendorId is null or vp.vendor.id = :vendorId) " +
+           "and (:productId is null or vp.product.id = :productId) " +
+           "and (:available is null or vp.available = :available) " +
+           "and (:minPrice is null or vp.finalPrice >= :minPrice) " +
+           "and (:maxPrice is null or vp.finalPrice <= :maxPrice) " +
+           "order by vp.id asc")
+    List<VendorProduct> searchByCursor(@Param("cursor") Integer cursor,
+                                        @Param("vendorId") Integer vendorId,
+                                        @Param("productId") Integer productId,
+                                        @Param("available") Boolean available,
+                                        @Param("minPrice") BigDecimal minPrice,
+                                        @Param("maxPrice") BigDecimal maxPrice,
+                                        Pageable pageable);
 }

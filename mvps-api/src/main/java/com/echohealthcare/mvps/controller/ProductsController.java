@@ -1,12 +1,14 @@
 package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.ProductsApi;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.ProductService;
 import com.echohealthcare.mvps.service.VendorProductService;
 import com.echohealthcare.mvps.model.VendorProductsGet200Response;
 import com.echohealthcare.mvps.util.PaginationUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -35,6 +37,22 @@ public class ProductsController implements ProductsApi {
 															  Integer limit) {
 		int[] validated = PaginationUtils.validatePagination(page, limit);
 		return ResponseEntity.ok(productService.getProducts(categoryId, isActive, prescriptionRequired, search, validated[0], validated[1]));
+	}
+
+	/**
+	 * Cursor-based pagination endpoint for products.
+	 * Provides efficient navigation through large product datasets.
+	 */
+	@GetMapping("/products/cursor")
+	public ResponseEntity<CursorPageResponse<Product>> productsGetByCursor(
+			@RequestParam(required = false) String cursor,
+			@RequestParam(defaultValue = "20") Integer size,
+			@RequestParam(required = false) Integer categoryId,
+			@RequestParam(required = false) Boolean isActive,
+			@RequestParam(required = false) Boolean prescriptionRequired,
+			@RequestParam(required = false) String search) {
+		return ResponseEntity.ok(productService.getProductsByCursor(
+			cursor, size, categoryId, isActive, prescriptionRequired, search));
 	}
 
 	@Override

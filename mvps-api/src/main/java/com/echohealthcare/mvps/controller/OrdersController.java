@@ -1,13 +1,16 @@
 package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.OrdersApi;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -31,6 +34,23 @@ public class OrdersController implements OrdersApi {
                                                           Integer page,
                                                           Integer limit) {
         return ResponseEntity.ok(orderService.getOrders(customerId, orderStatus, paymentStatus, orderType, fromDate, toDate, page, limit));
+    }
+
+    /**
+     * Cursor-based pagination endpoint for orders.
+     */
+    @GetMapping("/orders/cursor")
+    public ResponseEntity<CursorPageResponse<Order>> ordersGetByCursor(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) Integer customerId,
+            @RequestParam(required = false) String orderStatus,
+            @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) String orderType,
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate) {
+        return ResponseEntity.ok(orderService.getOrdersByCursor(
+            cursor, size, customerId, orderStatus, paymentStatus, orderType, fromDate, toDate));
     }
 
     @Override

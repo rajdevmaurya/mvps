@@ -2,6 +2,7 @@ package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.VendorProductsApi;
 import com.echohealthcare.mvps.domain.VendorStockMovement;
+import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.VendorProductCreate;
 import com.echohealthcare.mvps.model.VendorProductUpdate;
 import com.echohealthcare.mvps.model.VendorProductsGet200Response;
@@ -17,8 +18,10 @@ import com.echohealthcare.mvps.service.VendorProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -41,6 +44,22 @@ public class VendorProductsController implements VendorProductsApi {
                                                                           Integer page,
                                                                           Integer limit) {
         return ResponseEntity.ok(vendorProductService.getVendorProducts(vendorId, productId, isAvailable, minPrice, maxPrice, page, limit));
+    }
+
+    /**
+     * Cursor-based pagination endpoint for vendor products.
+     */
+    @GetMapping("/vendor-products/cursor")
+    public ResponseEntity<CursorPageResponse<com.echohealthcare.mvps.model.VendorProduct>> vendorProductsGetByCursor(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) Integer vendorId,
+            @RequestParam(required = false) Integer productId,
+            @RequestParam(required = false) Boolean isAvailable,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice) {
+        return ResponseEntity.ok(vendorProductService.getVendorProductsByCursor(
+            cursor, size, vendorId, productId, isAvailable, minPrice, maxPrice));
     }
 
     @Override
