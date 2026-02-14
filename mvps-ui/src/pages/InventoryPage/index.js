@@ -109,12 +109,28 @@ const InventoryPage = () => {
 
       const list = res?.data || [];
       const mapped = list
-        .map((vp) => ({
-        vendorProductId: vp.vendor_product_id ?? vp.vendorProductId,
-        vendorName: vp.vendor_name ?? vp.vendorName,
-        vendorSku: vp.vendor_sku ?? vp.vendorSku,
-        stockQuantity: vp.stock_quantity ?? vp.stockQuantity ?? 0,
-      }))
+        .map((vp) => {
+          const vendorProductId = vp.vendor_product_id ?? vp.vendorProductId;
+          // vendorName can come in multiple shapes: vendor_name, vendorName,
+          // or nested vendor object { name / vendor_name / vendorName }
+          let vendorName = vp.vendor_name ?? vp.vendorName;
+          if (!vendorName && vp.vendor) {
+            vendorName = vp.vendor.vendor_name ?? vp.vendor.vendorName ?? vp.vendor.name;
+          }
+          // As a last resort, try vendor id
+          const vendorId = vp.vendor_id ?? vp.vendorId ?? vp.vendor?.vendor_id ?? vp.vendor?.vendorId;
+          if (!vendorName && vendorId != null) vendorName = `Vendor #${vendorId}`;
+
+          const vendorSku = vp.vendor_sku ?? vp.vendorSku ?? vp.sku ?? vp.vendor?.sku ?? '';
+          const stockQuantity = vp.stock_quantity ?? vp.stockQuantity ?? 0;
+
+          return {
+            vendorProductId,
+            vendorName,
+            vendorSku,
+            stockQuantity,
+          };
+        })
         .filter((v) => v.vendorProductId != null);
 
       setVendorStocks(mapped);
@@ -140,10 +156,9 @@ const InventoryPage = () => {
             rawList.forEach((h) => {
               allHistory.push({
                 vendorProductId: v.vendorProductId,
-                vendorName: v.vendorName,
+                vendorName: v.vendorName ?? `Vendor #${v.vendorProductId}`,
                 vendorSku: v.vendorSku,
-                previousQuantity:
-                  h.previous_quantity ?? h.previousQuantity ?? null,
+                previousQuantity: h.previous_quantity ?? h.previousQuantity ?? null,
                 newQuantity: h.new_quantity ?? h.newQuantity ?? null,
                 changeAmount: h.change_amount ?? h.changeAmount ?? null,
                 changedAt: h.changed_at ?? h.changedAt ?? null,
