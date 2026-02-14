@@ -1,0 +1,72 @@
+/* ============================================================================
+   Map Product Vendor Page Styles
+   Uses global .btn-primary, .btn-secondary, .card, .form-grid from components.css
+   ============================================================================ */
+
+.map-product-vendor-page .mapping-form {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+.mapping-form h2 {
+  margin: 0 0 var(--spacing-4);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.mapping-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .mapping-form .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mapping-form .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.mapping-form .form-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.mapping-form label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+.mapping-form input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  margin-right: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .map-product-vendor-page .mapping-form {
+    padding: var(--spacing-4);
+  }
+
+  .mapping-form .form-actions {
+    flex-direction: column;
+  }
+
+  .mapping-form .form-actions button {
+    width: 100%;
+  }
+}

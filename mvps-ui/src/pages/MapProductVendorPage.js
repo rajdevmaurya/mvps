@@ -9,6 +9,8 @@ const MapProductVendorPage = () => {
   const [selectedVendor, setSelectedVendor] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [mrp, setMrp] = useState('');
+  const [discountPercentage, setDiscountPercentage] = useState('');
   const [sku, setSku] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,8 +21,28 @@ const MapProductVendorPage = () => {
       try {
         const productsRes = await fetchData('/products', { is_active: true, limit: 100 });
         const vendorsRes = await fetchData('/vendors', { is_active: true, limit: 100 });
-        setProducts(productsRes.data || []);
-        setVendors(vendorsRes.data || []);
+
+        const productsData = productsRes?.data || [];
+        const vendorsData = vendorsRes?.data || [];
+
+        const normalizedProducts = productsData
+          .filter(Boolean)
+          .map((p) => ({
+            id: p.product_id ?? p.productId ?? p.id,
+            name: p.product_name ?? p.productName ?? p.name ?? '',
+          }))
+          .filter((p) => p.id != null);
+
+        const normalizedVendors = vendorsData
+          .filter(Boolean)
+          .map((v) => ({
+            id: v.vendor_id ?? v.vendorId ?? v.id,
+            name: v.vendor_name ?? v.vendorName ?? v.name ?? '',
+          }))
+          .filter((v) => v.id != null);
+
+        setProducts(normalizedProducts);
+        setVendors(normalizedVendors);
       } catch (e) {
         setMessage('Failed to load products or vendors.');
       } finally {
@@ -40,16 +62,20 @@ const MapProductVendorPage = () => {
     setLoading(true);
     try {
       const payload = {
-        product_id: selectedProduct,
-        vendor_id: selectedVendor,
-        cost_price: parseFloat(price),
-        stock_quantity: parseInt(stock, 10),
-        vendor_sku: sku,
+        productId: Number(selectedProduct),
+        vendorId: Number(selectedVendor),
+        costPrice: parseFloat(price),
+        mrp: mrp ? parseFloat(mrp) : undefined,
+        discountPercentage: discountPercentage ? parseFloat(discountPercentage) : undefined,
+        stockQuantity: parseInt(stock, 10),
+        vendorSku: sku || undefined,
       };
       const res = await postJson('/vendor-products', payload);
       if (res.success) {
         setMessage('Vendor mapping created successfully!');
         setPrice('');
+        setMrp('');
+        setDiscountPercentage('');
         setStock('');
         setSku('');
       } else {
@@ -71,8 +97,8 @@ const MapProductVendorPage = () => {
           <select className="input" value={selectedProduct} onChange={e => setSelectedProduct(e.target.value)} required>
             <option value="">Select product</option>
             {products.map(p => (
-              <option key={p.id || p.product_id} value={p.id || p.product_id}>
-                {p.product_name || p.name}
+              <option key={p.id} value={p.id}>
+                {p.name}
               </option>
             ))}
           </select>
@@ -81,14 +107,20 @@ const MapProductVendorPage = () => {
           <select className="input" value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)} required>
             <option value="">Select vendor</option>
             {vendors.map(v => (
-              <option key={v.id || v.vendor_id} value={v.id || v.vendor_id}>
-                {v.vendor_name || v.name}
+              <option key={v.id} value={v.id}>
+                {v.name}
               </option>
             ))}
           </select>
 
           <label>Cost Price (₹)</label>
-          <input className="input" type="number" value={price} onChange={e => setPrice(e.target.value)} required min="0" />
+          <input className="input" type="number" value={price} onChange={e => setPrice(e.target.value)} required min="0" step="0.01" />
+
+          <label>MRP (₹)</label>
+          <input className="input" type="number" value={mrp} onChange={e => setMrp(e.target.value)} min="0" step="0.01" />
+
+          <label>Discount Percentage (%)</label>
+          <input className="input" type="number" value={discountPercentage} onChange={e => setDiscountPercentage(e.target.value)} min="0" max="100" step="0.01" />
 
           <label>Stock Quantity</label>
           <input className="input" type="number" value={stock} onChange={e => setStock(e.target.value)} required min="0" />

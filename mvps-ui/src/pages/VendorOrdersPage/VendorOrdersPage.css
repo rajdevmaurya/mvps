@@ -1,150 +1,15 @@
+/* ============================================================================
+   Vendor Orders Page Styles
+   Uses global .btn-primary, .btn-secondary, .link-button, .table, .modal
+   Already has good responsive design - enhanced with CSS variables
+   ============================================================================ */
+
+/* Toolbar - Responsive */
 .vendor-orders-page .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.vendor-orders-page .toolbar .input {
-  min-width: 180px;
-}
-
-.vendor-orders-page .filters-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.vendor-orders-page .actions-group {
-  margin-left: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.vendor-orders-page .vendor-orders-form {
-  margin-top: 1rem;
-  padding: 1.25rem;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
-}
-
-.vendor-orders-page .vendor-orders-form h2 {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-}
-
-.vendor-orders-page .vendor-orders-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.vendor-orders-page .vendor-orders-form-actions {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.vendor-orders-page .btn-primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.vendor-orders-page .btn-secondary {
-  background-color: #e5e7eb;
-  color: #111827;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.vendor-orders-page .btn-primary:disabled,
-.vendor-orders-page .btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.vendor-orders-page .link-button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  padding: 0;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.vendor-orders-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
-}
-
-.vendor-orders-modal {
-  background: #ffffff;
-  border-radius: 8px;
-  max-width: 640px;
-  width: 100%;
-  max-height: 80vh;
-  padding: 1.25rem 1.5rem;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
-  display: flex;
-  flex-direction: column;
-}
-
-.vendor-orders-modal h2 {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-}
-
-.vendor-orders-modal-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-}
-
-.vendor-orders-modal-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.75rem;
-}
-
-.vendor-orders-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-/* Table styling and responsive wrapper (ensure tables behave on mobile) */
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 0.6rem 0.8rem;
-  border-bottom: 1px solid #e2e8f0;
-  text-align: left;
-}
-
-/* Make toolbar inputs and filters stack on small screens */
-.vendor-orders-page .toolbar {
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
   align-items: stretch;
 }
 
@@ -153,12 +18,122 @@
   min-width: 140px;
 }
 
+.vendor-orders-page .filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.vendor-orders-page .actions-group {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* Vendor Orders Form */
+.vendor-orders-page .vendor-orders-form {
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-5);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.vendor-orders-page .vendor-orders-form h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-3);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+}
+
+/* Responsive Form Grid */
+.vendor-orders-page .vendor-orders-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .vendor-orders-page .vendor-orders-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vendor-orders-page .vendor-orders-form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vendor-orders-page .vendor-orders-form-actions {
+  margin-top: var(--spacing-4);
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+/* Vendor Orders Modal */
+.vendor-orders-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal-backdrop);
+}
+
+.vendor-orders-modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  max-width: 640px;
+  width: calc(100% - var(--spacing-8));
+  max-height: 80vh;
+  padding: var(--spacing-5) var(--spacing-6);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.vendor-orders-modal h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+}
+
+.vendor-orders-modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  margin-bottom: var(--spacing-4);
+}
+
+.vendor-orders-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 640px) {
+  .vendor-orders-modal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.vendor-orders-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}
+
+/* Mobile Responsive */
 @media (max-width: 600px) {
   .vendor-orders-page .toolbar,
   .vendor-orders-page .filters-group,
   .vendor-orders-page .actions-group {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--spacing-2);
   }
 
   .vendor-orders-page .toolbar .input {
@@ -166,9 +141,14 @@
     width: 100%;
   }
 
+  .vendor-orders-page .actions-group {
+    margin-left: 0;
+  }
+
   .vendor-orders-modal {
     max-width: 95%;
-    margin: 0 0.5rem;
-    padding: 1rem;
+    width: calc(100% - var(--spacing-4));
+    margin: 0 var(--spacing-2);
+    padding: var(--spacing-4);
   }
 }

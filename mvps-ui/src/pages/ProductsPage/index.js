@@ -158,6 +158,10 @@ const ProductsPage = () => {
     navigate('/products/new');
   };
 
+  const goToManageCategories = () => {
+    navigate('/categories/new');
+  };
+
   // ...existing code...
 
   return (
@@ -166,34 +170,42 @@ const ProductsPage = () => {
       <p className="page-subtitle">
         Master list of products with lowest price vendor.
       </p>
-      <div className="toolbar toolbar--two-column products-toolbar">
-        <div className="products-toolbar__filters">
-          <input
-            type="search"
-            className="input"
-            placeholder="Search by product or generic name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select
-            className="input"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat === 'all' ? 'All categories' : cat}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={goToNewProduct}
+      <div className="toolbar products-toolbar">
+        <input
+          type="search"
+          className="input"
+          placeholder="Search by product or generic name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="input"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
         >
-          + Add product
-        </button>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat === 'all' ? 'All categories' : cat}
+            </option>
+          ))}
+        </select>
+
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--spacing-3)', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={goToManageCategories}
+          >
+            Manage Categories
+          </button>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={goToNewProduct}
+          >
+            + Add product
+          </button>
+        </div>
       </div>
       <div className="table-wrapper">
         {loading && <p>Loading products...</p>}

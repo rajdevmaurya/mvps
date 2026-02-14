@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchData, putJson, deleteJson } from '../apiClient';
+import { fetchData, postJson, putJson, deleteJson } from '../apiClient';
 import './ProductsPage/ProductsPage.css';
 
 const CategoryDetailsPage = () => {
@@ -12,17 +12,26 @@ const CategoryDetailsPage = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [editMode, setEditMode] = useState(false);
+  const isNew = !categoryId;
+  const [editMode, setEditMode] = useState(isNew);
 
   useEffect(() => {
     async function loadCategory() {
+      if (!categoryId) {
+        // creating a new category — no load required
+        setCategory(null);
+        setFormValues({ name: '', description: '' });
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError('');
         const res = await fetchData(`/categories/${categoryId}`);
         setCategory(res.data || {});
         setFormValues({
-          name: res.data?.name || '',
+          name: res.data?.categoryName ?? res.data?.category_name ?? res.data?.name ?? '',
           description: res.data?.description || '',
         });
       } catch (e) {
@@ -45,10 +54,18 @@ const CategoryDetailsPage = () => {
       setSaving(true);
       setError('');
       setSuccess('');
-      await putJson(`/categories/${categoryId}`, formValues);
+      const payload = {
+        categoryName: formValues.name,
+        description: formValues.description || undefined,
+      };
+      if (categoryId) {
+        await putJson(`/categories/${categoryId}`, payload);
+      } else {
+        await postJson('/categories', payload);
+      }
       setSuccess('Category updated successfully.');
       setEditMode(false);
-      setCategory({ ...category, ...formValues });
+      setCategory((prev) => ({ ...(prev || {}), categoryName: formValues.name, description: formValues.description }));
     } catch (e) {
       setError('Failed to update category.');
     } finally {
@@ -72,15 +89,15 @@ const CategoryDetailsPage = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="error-message">{error}</p>;
-  if (!category) return <p>No category found.</p>;
+  if (!category && !isNew) return <p>No category found.</p>;
 
   return (
     <div className="page products-page container">
       <h1 className="page-title">Category Details</h1>
       {!editMode ? (
         <>
-          <p><strong>Name:</strong> {category.name}</p>
-          <p><strong>Description:</strong> {category.description}</p>
+              <p><strong>Name:</strong> {category?.name}</p>
+              <p><strong>Description:</strong> {category?.description}</p>
           <button className="btn-primary" onClick={() => setEditMode(true)}>Edit</button>
           <button className="btn-danger" onClick={handleDelete} disabled={saving} style={{marginLeft: '1rem'}}>Delete</button>
         </>

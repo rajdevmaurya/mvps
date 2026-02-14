@@ -1,0 +1,98 @@
+/* ============================================================================
+   Product Lowest Price Page Styles
+   Uses global .btn-secondary, .card, .table, .badge from components.css
+   ============================================================================ */
+
+.lowest-price-page .lowest-price-card {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-base);
+  margin-bottom: var(--spacing-6);
+  border: 2px solid var(--primary-color);
+}
+
+.lowest-price-card h2 {
+  margin: 0 0 var(--spacing-4);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.lowest-price-card .price-highlight {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--primary-color);
+  color: var(--white);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--spacing-4);
+}
+
+.price-highlight .price-label {
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+.price-highlight .price-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+}
+
+.lowest-price-card .vendor-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.vendor-info .info-row {
+  display: flex;
+  gap: var(--spacing-2);
+  font-size: var(--text-base);
+}
+
+.vendor-info .info-row strong {
+  min-width: 140px;
+  color: var(--text-secondary);
+}
+
+.lowest-price-page .price-comparison-section {
+  margin-top: var(--spacing-6);
+}
+
+.price-comparison-section h2 {
+  margin-bottom: var(--spacing-3);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.lowest-price-page .empty-state {
+  padding: var(--spacing-8);
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .lowest-price-page .lowest-price-card {
+    padding: var(--spacing-4);
+  }
+
+  .price-highlight {
+    flex-direction: column;
+    gap: var(--spacing-2) !important;
+  }
+
+  .vendor-info .info-row {
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .vendor-info .info-row strong {
+    min-width: auto;
+  }
+}

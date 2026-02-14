@@ -1,9 +1,24 @@
+/* ============================================================================
+   Pricing Page Styles
+   Uses global .badge, .table from components.css
+   ============================================================================ */
+
 .pricing-page .comparison-header {
-  margin: 1.5rem 0 0.75rem;
+  margin: var(--spacing-6) 0 var(--spacing-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
 }
 
 .pricing-page .filters {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
 }
 
-/* badge moved to global styles in src/index.css */
+@media (max-width: 640px) {
+  .pricing-page .filters {
+    flex-direction: column;
+  }
+}

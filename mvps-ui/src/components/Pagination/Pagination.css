@@ -1,40 +1,85 @@
+/* ============================================================================
+   Pagination Component Styles
+   ============================================================================ */
 .pagination-bar {
-  margin-top: 1rem;
+  margin-top: var(--spacing-4);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--spacing-3);
+}
+
+@media (max-width: 640px) {
+  .pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .pagination-summary {
-  font-size: 0.875rem;
-  color: #4b5563;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .pagination-summary {
+    text-align: center;
+    order: 2;
+  }
 }
 
 .pagination-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: var(--spacing-1);
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .pagination-controls {
+    justify-content: center;
+    order: 1;
+  }
 }
 
 .pagination-bar .page-button,
 .pagination-bar .page-number {
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  font-size: 0.85rem;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-dark);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 36px;
+  text-align: center;
+}
+
+.pagination-bar .page-button:hover:not(:disabled),
+.pagination-bar .page-number:hover:not(.active) {
+  background-color: var(--neutral-100);
+  border-color: var(--neutral-400);
+}
+
+.pagination-bar .page-button:focus-visible,
+.pagination-bar .page-number:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .pagination-bar .page-number.active {
   background-color: var(--primary-color);
-  color: #ffffff;
+  color: var(--white);
   border-color: var(--primary-color);
+  cursor: default;
 }
 
 .pagination-bar .page-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: var(--neutral-100);
+  color: var(--text-disabled);
 }

@@ -3,6 +3,7 @@ package com.echohealthcare.mvps.controller;
 import com.echohealthcare.mvps.api.CustomersApi;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.CustomerService;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -52,7 +53,8 @@ public class CustomersController implements CustomersApi {
                                                                 @Nullable String search,
                                                                 Integer page,
                                                                 Integer limit) {
-        return ResponseEntity.ok(customerService.getCustomers(customerType, isActive, city, search, page, limit));
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(customerService.getCustomers(customerType, isActive, city, search, validated[0], validated[1]));
     }
 
     @Override

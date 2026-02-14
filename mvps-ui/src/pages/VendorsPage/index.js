@@ -130,6 +130,10 @@ const VendorsPage = () => {
     navigate('/vendors/new');
   };
 
+  const goToMapProductVendor = () => {
+    navigate('/map-product-vendor');
+  };
+
   return (
     <div className="page vendors-page container">
       <h1 className="page-title">Vendors</h1>
@@ -145,13 +149,22 @@ const VendorsPage = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={goToNewVendor}
-        >
-          + Add vendor
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-3)', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={goToMapProductVendor}
+          >
+            Map Product to Vendor
+          </button>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={goToNewVendor}
+          >
+            + Add vendor
+          </button>
+        </div>
       </div>
 
       <div className="table-wrapper">

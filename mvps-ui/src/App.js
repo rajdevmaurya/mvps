@@ -52,6 +52,7 @@ function App() {
         <Route path="/order-items/:orderItemId" element={<OrderItemDetailsPage />} />
         <Route path="/orders/:orderId/status" element={<OrderStatusPage />} />
         <Route path="/orders/:orderId/payment-status" element={<OrderPaymentStatusPage />} />
+        <Route path="/categories/new" element={<CategoryDetailsPage />} />
         <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
         <Route path="/products/:productId/lowest-price" element={<ProductLowestPricePage />} />
         <Route path="/reports" element={<ReportsPage />} />

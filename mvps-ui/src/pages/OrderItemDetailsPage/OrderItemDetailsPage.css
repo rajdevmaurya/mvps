@@ -1,0 +1,68 @@
+/* ============================================================================
+   Order Item Details Page Styles
+   Uses global .btn-primary, .btn-secondary, .card, .form-grid from components.css
+   ============================================================================ */
+
+.order-item-details-page .order-item-form {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+.order-item-form h2 {
+  margin: 0 0 var(--spacing-3);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.order-item-form .product-info {
+  padding: var(--spacing-3);
+  background: var(--neutral-100);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--spacing-4);
+  font-size: var(--text-base);
+}
+
+.order-item-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .order-item-form .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.order-item-form .form-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.order-item-form label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .order-item-details-page .order-item-form {
+    padding: var(--spacing-4);
+  }
+
+  .order-item-form .form-actions {
+    flex-direction: column;
+  }
+
+  .order-item-form .form-actions button {
+    width: 100%;
+  }
+}

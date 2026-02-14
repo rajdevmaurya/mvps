@@ -6,7 +6,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Spring Boot 3.x (Jakarta only) -->
+    <!-- Spring Boot 3.4.x - Latest Stable with Enhanced Performance -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>

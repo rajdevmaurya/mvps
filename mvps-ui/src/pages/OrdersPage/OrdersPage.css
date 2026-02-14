@@ -1,141 +1,127 @@
+/* ============================================================================
+   Orders Page Styles
+   Uses global .btn-primary, .btn-secondary, .link-button, .card, .modal
+   REMOVED duplicate button styles (lines 52-97)
+   ============================================================================ */
+
+/* Order Cards Grid - Responsive */
 .orders-page .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
 }
 
+@media (min-width: 640px) {
+  .orders-page .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .orders-page .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Order Card - Uses global .card */
 .orders-page .order-card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast);
+}
+
+.orders-page .order-card:hover {
+  box-shadow: var(--shadow-base);
 }
 
 .orders-page .order-items {
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-6);
 }
 
+/* Order Form */
 .orders-page .order-form {
-  margin-bottom: 2rem;
-  padding: 1.25rem;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  margin-bottom: var(--spacing-8);
+  padding: var(--spacing-5);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
+/* Responsive Form Grid */
 .orders-page .order-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .orders-page .order-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .orders-page .order-form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .orders-page .order-form-actions {
-  margin-top: 1rem;
+  margin-top: var(--spacing-4);
   display: flex;
-  gap: 0.75rem;
+  gap: var(--spacing-3);
   flex-wrap: wrap;
 }
 
-.orders-page .order-form .input,
-.orders-page .order-form select {
-  width: 100%;
-}
-
-.orders-page .order-form label {
-  display: block;
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin-bottom: 0.35rem;
-}
-
-.orders-page .order-form .btn-primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.orders-page .order-form .btn-secondary {
-  background-color: #e5e7eb;
-  color: #111827;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.orders-page .order-form .btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Shared button styles so Orders pages match Products/Vendors look */
-.orders-page .btn-primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.orders-page .btn-secondary {
-	background-color: #e5e7eb;
-	color: #111827;
-	border: none;
-	padding: 0.6rem 1.2rem;
-	border-radius: 6px;
-	cursor: pointer;
-}
-
-.orders-page .btn-primary:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-}
-
-.orders-page .link-button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  padding: 0;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
+/* Toolbar - Responsive */
 .orders-page .toolbar {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
 }
 
+@media (max-width: 640px) {
+  .orders-page .toolbar {
+    flex-direction: column;
+  }
+}
+
+/* Orders Modal - Uses global .modal-backdrop and .modal */
 .orders-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 40;
+  z-index: var(--z-modal-backdrop);
 }
 
 .orders-modal {
-  background: #ffffff;
-  border-radius: 8px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
   max-width: 720px;
-  width: 100%;
+  width: calc(100% - var(--spacing-8));
   max-height: 80vh;
   overflow: auto;
-  padding: 1.25rem 1.5rem 1.5rem;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+  padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
+  box-shadow: var(--shadow-xl);
+}
+
+@media (max-width: 640px) {
+  .orders-modal {
+    width: calc(100% - var(--spacing-4));
+  }
 }
 
 .orders-modal-actions {
-  margin-top: 1rem;
+  margin-top: var(--spacing-4);
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-3);
 }

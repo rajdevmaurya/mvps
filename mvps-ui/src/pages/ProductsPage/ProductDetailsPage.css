@@ -1,79 +1,87 @@
+/* ============================================================================
+   Product Details Page Styles
+   Uses global .btn, .btn-primary, .card from components.css
+   ============================================================================ */
+
+/* Vendor List Grid - Responsive */
 .vendor-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-8);
 }
 
+@media (min-width: 640px) {
+  .vendor-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vendor-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Vendor Card - Uses global .card */
 .vendor-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 1rem;
-  min-width: 220px;
-  max-width: 320px;
-  flex: 1 1 220px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-4);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-2);
+  transition: box-shadow var(--transition-fast);
 }
 
+.vendor-card:hover {
+  box-shadow: var(--shadow-base);
+}
+
+/* Forms */
 .edit-form, .add-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-2);
 }
 
-.product-details-container .input {
-  height: 40px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0 10px;
-  font-size: 1rem;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-right: 0.5rem;
-}
-
-.btn.add {
-  background: #007bff;
-  color: #fff;
-}
-
-.btn.update {
-  background: #28a745;
-  color: #fff;
-}
-
-.btn.edit {
-  background: #ffc107;
-  color: #fff;
-}
-
-.btn.delete {
-  background: #dc3545;
-  color: #fff;
-}
-
-.btn.cancel {
-  background: #6c757d;
-  color: #fff;
-}
-
+/* Product Details Container */
 .product-details-container {
-  background: #f9f9f9;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  margin-bottom: 2rem;
+  background: var(--bg-secondary);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-8);
+}
+
+@media (max-width: 640px) {
+  .product-details-container {
+    padding: var(--spacing-4);
+  }
 }
 
 .add-form-section {
-  margin-top: 2rem;
+  margin-top: var(--spacing-8);
+}
+
+/* Button Variants - Override for specific colors */
+.btn.add, .btn.update {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.btn.edit {
+  background-color: #ffc107;
+  color: var(--text-primary);
+}
+
+.btn.delete {
+  background-color: #dc2626;
+  color: var(--white);
+}
+
+.btn.cancel {
+  background-color: var(--neutral-500);
+  color: var(--white);
 }

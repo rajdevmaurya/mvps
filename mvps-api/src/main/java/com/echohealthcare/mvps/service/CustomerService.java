@@ -33,7 +33,13 @@ public class CustomerService {
                                                 int page,
                                                 int limit) {
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), limit);
-        Page<Customer> customerPage = customerRepository.findAll(pageable);
+        Page<Customer> customerPage = customerRepository.search(
+            customerType,
+            isActive,
+            city,
+            search,
+            pageable
+        );
 
         CustomersGet200Response response = new CustomersGet200Response();
         response.setSuccess(true);

@@ -5,6 +5,7 @@ import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.ProductService;
 import com.echohealthcare.mvps.service.VendorProductService;
 import com.echohealthcare.mvps.model.VendorProductsGet200Response;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +33,8 @@ public class ProductsController implements ProductsApi {
 															  @Nullable String search,
 															  Integer page,
 															  Integer limit) {
-		return ResponseEntity.ok(productService.getProducts(categoryId, isActive, prescriptionRequired, search, page, limit));
+		int[] validated = PaginationUtils.validatePagination(page, limit);
+		return ResponseEntity.ok(productService.getProducts(categoryId, isActive, prescriptionRequired, search, validated[0], validated[1]));
 	}
 
 	@Override

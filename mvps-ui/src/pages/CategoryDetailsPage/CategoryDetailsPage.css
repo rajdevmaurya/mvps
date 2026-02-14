@@ -1,0 +1,76 @@
+/* ============================================================================
+   Category Details Page Styles
+   Uses global .btn-primary, .btn-secondary, .card, .form-grid from components.css
+   ============================================================================ */
+
+.category-details-page .category-form {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+.category-form h2 {
+  margin: 0 0 var(--spacing-4);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.category-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .category-form .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.category-form .form-grid-full {
+  grid-column: 1 / -1;
+}
+
+.category-form textarea.input {
+  height: auto;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.category-form .form-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.category-form label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+.category-form input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  margin-right: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .category-details-page .category-form {
+    padding: var(--spacing-4);
+  }
+
+  .category-form .form-actions {
+    flex-direction: column;
+  }
+
+  .category-form .form-actions button {
+    width: 100%;
+  }
+}

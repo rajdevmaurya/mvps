@@ -1,0 +1,105 @@
+/* ============================================================================
+   Order Status Page Styles
+   Uses global .btn-primary, .btn-secondary, .card, .badge from components.css
+   ============================================================================ */
+
+.order-status-page .status-form {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+.status-form h2 {
+  margin: 0 0 var(--spacing-3);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.status-form .status-info {
+  padding: var(--spacing-3);
+  background: var(--neutral-100);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--spacing-4);
+  font-size: var(--text-base);
+}
+
+.status-form .status-info .badge {
+  margin-left: var(--spacing-2);
+  font-weight: var(--font-semibold);
+}
+
+.status-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .status-form .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.status-form .status-transitions {
+  padding: var(--spacing-4);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--spacing-4);
+}
+
+.status-form .status-transitions h3 {
+  margin: 0 0 var(--spacing-2);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.status-form .flow-chart {
+  padding: var(--spacing-3);
+  background: var(--bg-primary);
+  border-radius: var(--radius-base);
+  text-align: center;
+  font-family: monospace;
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-2);
+  color: var(--text-secondary);
+}
+
+.status-form .hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.status-form .form-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.status-form label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .order-status-page .status-form {
+    padding: var(--spacing-4);
+  }
+
+  .status-form .form-actions {
+    flex-direction: column;
+  }
+
+  .status-form .form-actions button {
+    width: 100%;
+  }
+}
