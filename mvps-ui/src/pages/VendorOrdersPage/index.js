@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fetchData, postJson, putJson, deleteJson } from '../../apiClient';
 import Pagination from '../../components/Pagination';
@@ -18,6 +18,8 @@ const statusOptions = [
 const VendorOrdersPage = () => {
   const location = useLocation();
   const [vendors, setVendors] = useState([]);
+  const createRef = useRef(null);
+  const [showCreate, setShowCreate] = useState(false);
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -40,6 +42,7 @@ const VendorOrdersPage = () => {
     expectedDeliveryDate: '',
     notes: '',
   });
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [orderDetail, setOrderDetail] = useState(null);
@@ -54,94 +57,43 @@ const VendorOrdersPage = () => {
     notes: '',
   });
   const [detailModalOpen, setDetailModalOpen] = useState(false);
-
   const vendorsById = useMemo(() => {
-    const map = new Map();
-    vendors.forEach((v) => {
-      if (!v) return;
-      const id = v.vendor_id ?? v.vendorId;
-      if (typeof id === 'number') {
-        map.set(id, v);
-      }
+    const m = new Map();
+    (vendors || []).forEach((v) => {
+      const id = v?.vendor_id ?? v?.vendorId;
+      if (id != null) m.set(id, v);
     });
-    return map;
+    return m;
   }, [vendors]);
-
-  useEffect(() => {
-    if (!location.search) return;
-
-    const params = new URLSearchParams(location.search);
-    const vendorIdParam = params.get('vendorId') || params.get('vendor_id');
-    if (!vendorIdParam) return;
-
-    setFilters((prev) => ({
-      ...prev,
-      vendorId: vendorIdParam,
-    }));
-  }, [location.search]);
 
   const formatDate = (value) => {
     if (!value) return '';
-
-    const raw = Array.isArray(value) ? value[0] : value;
-    if (typeof raw !== 'string' && typeof raw !== 'number') {
-      return '';
-    }
-
     try {
-      const d = new Date(raw);
-      if (Number.isNaN(d.getTime())) {
-        return String(raw);
-      }
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '';
       return d.toLocaleDateString();
-    } catch {
-      return String(raw);
+    } catch (e) {
+      return '';
     }
   };
 
   const toDateInputValue = (value) => {
     if (!value) return '';
-    const raw = Array.isArray(value) ? value[0] : value;
-    // accept number or string
-    if (typeof raw !== 'string' && typeof raw !== 'number') return '';
     try {
-      const d = new Date(raw);
+      const d = new Date(value);
       if (Number.isNaN(d.getTime())) return '';
+      // yyyy-mm-dd
       return d.toISOString().slice(0, 10);
-    } catch {
+    } catch (e) {
       return '';
     }
   };
-
-  useEffect(() => {
-    async function loadVendors() {
-      try {
-        const res = await fetchData('/vendors', {
-          is_active: true,
-          page: 1,
-          limit: 100,
-        });
-        setVendors(res.data || []);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        setVendors([]);
-      }
-    }
-
-    loadVendors();
-  }, []);
-
   const loadOrders = async (pageToLoad = page) => {
     try {
       setLoading(true);
       setError('');
 
-      const params = {
-        page: pageToLoad,
-        limit: PAGE_SIZE,
-      };
-
+      const params = { page: pageToLoad, limit: PAGE_SIZE };
       if (filters.vendorId) params.vendor_id = Number(filters.vendorId);
       if (filters.status) params.status = filters.status;
       if (filters.fromDate) params.from_date = filters.fromDate;
@@ -151,51 +103,42 @@ const VendorOrdersPage = () => {
       const data = res.data || [];
       const pagination = res.pagination;
 
-      const mapped = data.map((o) => {
-        if (!o) return null;
-        const id = o.vendor_order_id ?? o.vendorOrderId;
-        const vendorId = o.vendor_id ?? o.vendorId;
-        const vendor = vendorsById.get(vendorId);
-        const vendorName =
-          vendor?.vendor_name ?? vendor?.vendorName ?? `Vendor #${vendorId || ''}`;
+      const mapped = data
+        .map((o) => {
+          if (!o) return null;
+          const id = o.vendor_order_id ?? o.vendorOrderId;
+          const vendorId = o.vendor_id ?? o.vendorId;
+          const vendor = vendorsById.get(vendorId);
+          const vendorName = vendor?.vendor_name ?? vendor?.vendorName ?? `Vendor #${vendorId || ''}`;
 
-        const orderDateRaw = o.order_date ?? o.orderDate;
-        const expectedDateRaw = o.expected_delivery_date ?? o.expectedDeliveryDate;
-        const actualDateRaw = o.actual_delivery_date ?? o.actualDeliveryDate;
+          const orderDateRaw = o.order_date ?? o.orderDate;
+          const expectedDateRaw = o.expected_delivery_date ?? o.expectedDeliveryDate;
+          const actualDateRaw = o.actual_delivery_date ?? o.actualDeliveryDate;
 
-        return {
-          id,
-          vendorId,
-          vendorName,
-          poNumber: o.po_number ?? o.poNumber,
-          totalAmount: o.total_amount ?? o.totalAmount,
-          status: o.status,
-          orderDate: formatDate(orderDateRaw),
-          expectedDeliveryDate: formatDate(expectedDateRaw),
-          actualDeliveryDate: formatDate(actualDateRaw),
-        };
-      }).filter(Boolean);
+          return {
+            id,
+            vendorId,
+            vendorName,
+            poNumber: o.po_number ?? o.poNumber,
+            totalAmount: o.total_amount ?? o.totalAmount,
+            status: o.status,
+            orderDate: formatDate(orderDateRaw),
+            expectedDeliveryDate: formatDate(expectedDateRaw),
+            actualDeliveryDate: formatDate(actualDateRaw),
+          };
+        })
+        .filter(Boolean);
 
       setOrders(mapped);
 
       let itemsCount = data.length;
       let pagesCount = 1;
       if (pagination) {
-        const totalItemsValue =
-          typeof pagination.total_items === 'number'
-            ? pagination.total_items
-            : pagination.totalItems;
-        const totalPagesValue =
-          typeof pagination.total_pages === 'number'
-            ? pagination.total_pages
-            : pagination.totalPages;
+        const totalItemsValue = typeof pagination.total_items === 'number' ? pagination.total_items : pagination.totalItems;
+        const totalPagesValue = typeof pagination.total_pages === 'number' ? pagination.total_pages : pagination.totalPages;
 
-        if (typeof totalItemsValue === 'number') {
-          itemsCount = totalItemsValue;
-        }
-        if (typeof totalPagesValue === 'number') {
-          pagesCount = totalPagesValue;
-        }
+        if (typeof totalItemsValue === 'number') itemsCount = totalItemsValue;
+        if (typeof totalPagesValue === 'number') pagesCount = totalPagesValue;
       }
 
       setTotalItems(itemsCount);
@@ -209,7 +152,6 @@ const VendorOrdersPage = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     loadOrders(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -252,6 +194,8 @@ const VendorOrdersPage = () => {
       await postJson('/vendor-orders', payload);
       setNewOrder({ vendorId: '', totalAmount: '', expectedDeliveryDate: '', notes: '' });
       await loadOrders(1);
+      // close modal when created
+      setCreateModalOpen(false);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -280,15 +224,10 @@ const VendorOrdersPage = () => {
       setOrderDetail(data);
 
       setDetailForm({
-        total_amount:
-          data.total_amount ?? data.totalAmount ?? '',
+        total_amount: data.total_amount ?? data.totalAmount ?? '',
         status: data.status ?? '',
-        expected_delivery_date: toDateInputValue(
-          data.expected_delivery_date ?? data.expectedDeliveryDate ?? ''
-        ),
-        actual_delivery_date: toDateInputValue(
-          data.actual_delivery_date ?? data.actualDeliveryDate ?? ''
-        ),
+        expected_delivery_date: toDateInputValue(data.expected_delivery_date ?? data.expectedDeliveryDate ?? ''),
+        actual_delivery_date: toDateInputValue(data.actual_delivery_date ?? data.actualDeliveryDate ?? ''),
         notes: data.notes ?? '',
       });
     } catch (e) {
@@ -416,13 +355,13 @@ const VendorOrdersPage = () => {
   const pageTitle = 'Vendor Orders';
 
   return (
-    <div className="page vendor-orders-page container">
+    <div className="page vendor-orders-page customers-page container">
       <h1 className="page-title">{pageTitle}</h1>
       <p className="page-subtitle">
         Purchase orders placed to vendors, with status tracking.
       </p>
 
-      <div className="toolbar">
+      <div className="toolbar customers-toolbar">
         <div className="filters-group">
           <select
             className="input"
@@ -469,9 +408,25 @@ const VendorOrdersPage = () => {
             onChange={(e) => handleFilterChange('toDate', e.target.value)}
           />
         </div>
+        <div className="actions-group">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setShowCreate((s) => !s);
+              // if opening, scroll to form after render
+              if (!showCreate) {
+                setTimeout(() => createRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+              }
+            }}
+          >
+            {showCreate ? 'Hide new order' : '+ New order'}
+          </button>
+        </div>
       </div>
 
-      <section className="vendor-orders-form">
+      {showCreate && (
+        <section className="vendor-orders-form" ref={createRef}>
         <h2>Create vendor order</h2>
         {createError && <p className="error-message">{createError}</p>}
         <form onSubmit={handleCreateOrder}>
@@ -547,7 +502,8 @@ const VendorOrdersPage = () => {
             </button>
           </div>
         </form>
-      </section>
+        </section>
+        )}
 
       <section style={{ marginTop: '1.5rem' }}>
         <h2>Vendor orders</h2>
@@ -605,6 +561,84 @@ const VendorOrdersPage = () => {
           onPageChange={loadOrders}
         />
       </section>
+
+      {/* Create modal */}
+      {createModalOpen && (
+        <div className="vendor-orders-modal-backdrop">
+          <div className="vendor-orders-modal">
+            <h2>Create vendor order</h2>
+            <div className="vendor-orders-modal-body">
+              {createError && <p className="error-message">{createError}</p>}
+              <form onSubmit={handleCreateOrder}>
+                <div className="vendor-orders-modal-grid">
+                  <div>
+                    <label>
+                      Vendor
+                      <select
+                        className="input"
+                        value={newOrder.vendorId}
+                        onChange={(e) => handleNewOrderFieldChange('vendorId', e.target.value)}
+                      >
+                        <option value="">Select vendor</option>
+                        {vendors.map((v) => {
+                          if (!v) return null;
+                          const id = v.vendor_id ?? v.vendorId;
+                          const name = v.vendor_name ?? v.vendorName;
+                          if (id == null) return null;
+                          return (
+                            <option key={id} value={id}>
+                              {name || `Vendor #${id}`}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </label>
+                  </div>
+                  <div>
+                    <label>
+                      Total amount (₹)
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        className="input"
+                        value={newOrder.totalAmount}
+                        onChange={(e) => handleNewOrderFieldChange('totalAmount', e.target.value)}
+                      />
+                    </label>
+                  </div>
+                  <div>
+                    <label>
+                      Expected delivery date
+                      <input
+                        type="date"
+                        className="input"
+                        value={newOrder.expectedDeliveryDate}
+                        onChange={(e) => handleNewOrderFieldChange('expectedDeliveryDate', e.target.value)}
+                      />
+                    </label>
+                  </div>
+                  <div>
+                    <label>
+                      Notes
+                      <input
+                        type="text"
+                        className="input"
+                        value={newOrder.notes}
+                        onChange={(e) => handleNewOrderFieldChange('notes', e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div className="vendor-orders-modal-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setCreateModalOpen(false)}>Cancel</button>
+                  <button type="submit" className="btn-primary" disabled={creating}>{creating ? 'Creating…' : 'Create vendor order'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {detailModalOpen && (
         <div className="vendor-orders-modal-backdrop">

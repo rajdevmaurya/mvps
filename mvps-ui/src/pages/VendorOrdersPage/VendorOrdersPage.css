@@ -24,6 +24,57 @@
   gap: var(--spacing-3);
 }
 
+/* Keep filters on one row for desktop, allow wrap on narrow screens */
+@media (min-width: 800px) {
+  .vendor-orders-page .filters-group {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .vendor-orders-page .filters-group .input {
+    flex: 0 0 220px;
+    max-width: 320px;
+  }
+
+  /* reduce gap to tighten spacing when on single row */
+  .vendor-orders-page .filters-group {
+    gap: var(--spacing-2);
+  }
+}
+
+@media (max-width: 799px) {
+  .vendor-orders-page .filters-group {
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .vendor-orders-page .toolbar,
+  .vendor-orders-page .filters-group,
+  .vendor-orders-page .actions-group {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .vendor-orders-page .toolbar .input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .vendor-orders-page .actions-group {
+    margin-left: 0;
+  }
+
+  .vendor-orders-modal {
+    max-width: 95%;
+    width: calc(100% - var(--spacing-4));
+    margin: 0 var(--spacing-2);
+    padding: var(--spacing-4);
+  }
+}
+
 .vendor-orders-page .actions-group {
   margin-left: auto;
   display: flex;
