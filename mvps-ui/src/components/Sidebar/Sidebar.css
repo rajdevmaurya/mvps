@@ -147,9 +147,9 @@
 }
 
 .sidebar-item:hover {
-  background: var(--neutral-100);
-  color: var(--primary-dark);
-  border-left-color: var(--primary-light);
+  background: var(--primary-dark);
+  color: #ffffff;
+  border-left-color: var(--primary-dark);
 }
 
 .sidebar-item.active {
