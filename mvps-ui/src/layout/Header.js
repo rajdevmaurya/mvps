@@ -7,7 +7,6 @@ import './Header.css';
 
 const navLinks = [
   { path: '/', label: 'Dashboard', end: true },
-  { path: '/vendors', label: 'Vendors', end: false },
   { path: '/products', label: 'Products', end: false },
   // ...existing code...
   { path: '/customers', label: 'Customers', end: false },

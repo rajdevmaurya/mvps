@@ -10,7 +10,6 @@ import Dashboard from './pages/Dashboard';
 
 // Lazy load sections
 const ProductsSection = lazy(() => import('./sections/ProductsSection'));
-const VendorsSection = lazy(() => import('./sections/VendorsSection'));
 const CustomersSection = lazy(() => import('./sections/CustomersSection'));
 const OrdersSection = lazy(() => import('./sections/OrdersSection'));
 const InventorySection = lazy(() => import('./sections/InventorySection'));
@@ -18,7 +17,6 @@ const PricingSection = lazy(() => import('./sections/PricingSection'));
 
 // Lazy load pages
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
-const ProductsCursorPage = lazy(() => import('./pages/ProductsCursorPage'));
 const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage'));
 const ProductLowestPricePage = lazy(() => import('./pages/ProductLowestPricePage'));
 const VendorsPage = lazy(() => import('./pages/VendorsPage'));
@@ -73,20 +71,17 @@ function App() {
             <Route path="products" element={<ProductsSection />}>
               <Route index element={<Navigate to="catalog" replace />} />
               <Route path="catalog" element={<ProductsPage />} />
-              <Route path="cursor" element={<ProductsCursorPage />} />
             </Route>
             {/* Product detail pages (outside section for clean URLs) */}
             <Route path="products/new" element={<ProductDetailsPage />} />
             <Route path="products/:productId" element={<ProductDetailsPage />} />
             <Route path="products/:productId/lowest-price" element={<ProductLowestPricePage />} />
 
-            {/* Vendors Section */}
-            <Route path="vendors" element={<VendorsSection />}>
-              <Route index element={<Navigate to="list" replace />} />
-              <Route path="list" element={<VendorsPage />} />
-              <Route path="products" element={<MapProductVendorPage />} />
-              <Route path="orders" element={<VendorOrdersPage />} />
-            </Route>
+            {/* Vendors routes (section removed) */}
+            <Route path="vendors" element={<Navigate to="vendors/list" replace />} />
+            <Route path="vendors/list" element={<VendorsPage />} />
+            <Route path="vendors/products" element={<MapProductVendorPage />} />
+            <Route path="vendors/orders" element={<VendorOrdersPage />} />
             {/* Vendor detail pages (outside section for clean URLs) */}
             <Route path="vendors/new" element={<VendorDetailsPage />} />
             <Route path="vendors/:vendorId" element={<VendorDetailsPage />} />

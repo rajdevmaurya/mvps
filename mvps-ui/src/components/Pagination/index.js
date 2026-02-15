@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import './Pagination.css';
 
 const Pagination = ({
@@ -11,35 +11,38 @@ const Pagination = ({
 }) => {
   const safePageSize = pageSize && pageSize > 0 ? pageSize : 10;
 
-  const visiblePageNumbers = useMemo(() => {
+  const pageNumbers = useMemo(() => {
     if (!totalItems || totalPages <= 1) {
       return [];
     }
 
-    if (totalPages <= 5) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    // Show all pages if 7 or fewer
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    const pages = new Set();
-    pages.add(1);
-    const prev = page - 1;
-    const next = page + 1;
+    // Build page numbers with ellipsis for larger page counts
+    const pages = [];
+    pages.push(1);
 
-    if (prev > 1 && prev < totalPages) {
-      pages.add(prev);
+    if (page > 3) {
+      pages.push('...');
     }
 
-    if (page > 1 && page < totalPages) {
-      pages.add(page);
+    const start = Math.max(2, page - 1);
+    const end = Math.min(totalPages - 1, page + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
     }
 
-    if (next > 1 && next < totalPages) {
-      pages.add(next);
+    if (page < totalPages - 2) {
+      pages.push('...');
     }
 
-    pages.add(totalPages);
+    pages.push(totalPages);
 
-    return Array.from(pages).sort((a, b) => a - b);
+    return pages;
   }, [page, totalPages, totalItems]);
 
   const start = (page - 1) * safePageSize + 1;
@@ -50,7 +53,7 @@ const Pagination = ({
     onPageChange(newPage);
   };
 
-  if (!totalItems || totalPages <= 1 || visiblePageNumbers.length === 0) {
+  if (!totalItems || totalPages <= 1 || pageNumbers.length === 0) {
     return null;
   }
 
@@ -71,18 +74,22 @@ const Pagination = ({
           Previous
         </button>
 
-        {visiblePageNumbers.map((pageNumber) => (
-          <button
-            key={pageNumber}
-            type="button"
-            className={
-              pageNumber === page ? 'page-number active' : 'page-number'
-            }
-            onClick={() => handlePageChange(pageNumber)}
-          >
-            {pageNumber}
-          </button>
-        ))}
+        {pageNumbers.map((item, index) =>
+          item === '...' ? (
+            <span key={`ellipsis-${index}`} className="page-ellipsis">
+              ...
+            </span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              className={item === page ? 'page-number active' : 'page-number'}
+              onClick={() => handlePageChange(item)}
+            >
+              {item}
+            </button>
+          )
+        )}
 
         <button
           type="button"

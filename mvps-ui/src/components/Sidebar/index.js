@@ -37,12 +37,11 @@ const Sidebar = () => {
       title: 'Products',
       icon: '📦',
       items: [
-        { label: 'Catalog', path: '/products/catalog' },
-        { label: 'Cursor View', path: '/products/cursor' },
+        { label: 'Products Catalog', path: '/products/catalog' },
       ],
     },
     {
-      title: 'Vendors',
+      title: 'Vendors Management',
       icon: '🏢',
       items: [
         { label: 'Vendor List', path: '/vendors/list' },

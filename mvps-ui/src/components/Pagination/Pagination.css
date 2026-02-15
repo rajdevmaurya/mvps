@@ -83,3 +83,12 @@
   background-color: var(--neutral-100);
   color: var(--text-disabled);
 }
+
+.pagination-bar .page-ellipsis {
+  padding: var(--spacing-2) var(--spacing-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  user-select: none;
+  min-width: 24px;
+  text-align: center;
+}

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import './Layout.css';
+import Breadcrumb from '../components/Breadcrumb';
 import { useEffect } from 'react';
 
 // try refreshing access token into memory on app start
@@ -21,6 +22,9 @@ const Layout = () => {
     <>
       <Header />
       <main className="app-main">
+        <div className="section-breadcrumb">
+          <Breadcrumb />
+        </div>
         <Outlet />
       </main>
       <Footer />

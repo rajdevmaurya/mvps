@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData } from '../../apiClient';
-import Breadcrumb from '../../components/Breadcrumb';
 import './SearchPage.css';
 
 const SearchPage = ({ type }) => {
@@ -135,16 +134,8 @@ const SearchPage = ({ type }) => {
   const showProducts = !type || type === 'products';
   const showVendors = !type || type === 'vendors';
 
-  const breadcrumbs = [
-    { label: 'Home', path: '/' },
-    { label: type === 'products' ? 'Product Search' : type === 'vendors' ? 'Vendor Search' : 'Search', isLast: true },
-  ];
-
   return (
     <div className="page search-page container">
-      <div className="section-breadcrumb">
-        <Breadcrumb items={breadcrumbs} />
-      </div>
       <h1 className="page-title">
         {type === 'products' ? 'Product Search' : type === 'vendors' ? 'Vendor Search' : 'Search'}
       </h1>
