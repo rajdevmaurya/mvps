@@ -1,23 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toggleSidebar } from '../store/slices/uiSlice';
 import logo from '../assets/echo_logo.png';
+import tokenManager from '../auth/tokenManager';
 import './Header.css';
-
-const navLinks = [
-  { path: '/', label: 'Dashboard', end: true },
-  { path: '/products', label: 'Products', end: false },
-  // ...existing code...
-  { path: '/customers', label: 'Customers', end: false },
-  { path: '/pricing', label: 'Pricing', end: false },
-  { path: '/inventory', label: 'Inventory', end: false },
-  { path: '/stock-history', label: 'Stock History', end: false },
-  { path: '/vendor-orders', label: 'Vendor Orders', end: false },
-  { path: '/orders', label: 'Orders', end: false },
-  { path: '/search', label: 'Search', end: false },
-  { path: '/analytics', label: 'Analytics', end: false },
-];
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -51,16 +38,15 @@ const Header = () => {
             const normalizedName = (name || '').trim().toUpperCase();
 
             if (!normalizedName || normalizedName === 'ANONYMOUS') {
-                      setIsAuthenticated(false);
-                      setUserName('');
-                      // anonymous - redirect to login
-                      try {
-                        if (!window.location.pathname.startsWith('/oauth2')) {
-                          window.location.href = '/oauth2/authorization/gateway';
-                        }
-                      } catch (e) {
-                        // ignore in SSR or test env
-                      }
+              setIsAuthenticated(false);
+              setUserName('');
+              try {
+                if (!window.location.pathname.startsWith('/oauth2')) {
+                  window.location.href = '/oauth2/authorization/gateway';
+                }
+              } catch (e) {
+                // ignore in SSR or test env
+              }
             } else {
               setIsAuthenticated(true);
               setUserName(name);
@@ -94,17 +80,11 @@ const Header = () => {
   const handleAuthClick = useCallback(() => {
     if (isAuthenticated) {
       try {
-        // clear in-memory token and server refresh cookie
-        import('../auth/tokenManager').then(mod => {
-          try { mod.default.clear(); } catch (e) { /* ignore */ }
-          // continue logout via OIDC
-          window.location.href = '/logout';
-        }).catch(() => {
-          window.location.href = '/logout';
-        });
+        tokenManager.clear();
       } catch (e) {
-        window.location.href = '/logout';
+        // ignore
       }
+      window.location.href = '/logout';
     } else {
       window.location.href = '/oauth2/authorization/gateway';
     }

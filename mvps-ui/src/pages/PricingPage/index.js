@@ -1,25 +1,33 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setLists,
+  setLoading,
+  setError,
+} from '../../store/slices/pricingSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './PricingPage.css';
 
 const PricingPage = () => {
+  const dispatch = useDispatch();
+  const { lists: lowestPriceProducts, loading, error } = useSelector(
+    (state) => state.pricing,
+  );
+
   const [selectedProductId, setSelectedProductId] = useState('all');
-  const [lowestPriceProducts, setLowestPriceProducts] = useState([]);
   const [priceComparison, setPriceComparison] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const PAGE_SIZE = 20;
 
   useEffect(() => {
     async function loadPricing() {
       try {
-        setLoading(true);
-        setError('');
+        dispatch(setLoading(true));
+        dispatch(setError(null));
 
         const [lowestResult, comparisonResult] = await Promise.allSettled([
           fetchData('/vendor-products/lowest-prices'),
@@ -56,30 +64,28 @@ const PricingPage = () => {
           priceStatus: item.price_status ?? item.priceStatus,
         }));
 
-        setLowestPriceProducts(mappedLowest);
+        dispatch(setLists(mappedLowest));
         setPriceComparison(mappedComparison);
 
-  // Client-side pagination for lowest price list
-  const itemsCount = mappedLowest.length;
-  const pagesCount = itemsCount > 0 ? Math.ceil(itemsCount / PAGE_SIZE) : 1;
-  setTotalItems(itemsCount);
-  setTotalPages(pagesCount);
-  setPage(1);
+        const itemsCount = mappedLowest.length;
+        const pagesCount = itemsCount > 0 ? Math.ceil(itemsCount / PAGE_SIZE) : 1;
+        setTotalItems(itemsCount);
+        setTotalPages(pagesCount);
+        setPage(1);
 
         if (!lowestRes || !comparisonRes) {
-          setError('Some pricing data is currently unavailable.');
+          dispatch(setError('Some pricing data is currently unavailable.'));
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
-        setError('Failed to load pricing information.');
+        dispatch(setError('Failed to load pricing information.'));
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     }
 
     loadPricing();
-  }, []);
+  }, [dispatch]);
 
   const productOptions = useMemo(() => {
     const map = new Map();

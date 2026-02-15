@@ -1,7 +1,109 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData, postJson } from '../../apiClient';
 import './MapProductVendorPage.css';
+
+const SearchableSelect = ({ label, name, options, value, onChange, placeholder, required }) => {
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const selectedOption = options.find((o) => String(o.id) === String(value));
+
+  const filtered = search
+    ? options.filter((o) => o.name?.toLowerCase().includes(search.toLowerCase()))
+    : options;
+
+  const handleClickOutside = useCallback((e) => {
+    if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      setOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
+
+  const handleSelect = (id) => {
+    onChange({ target: { name, value: String(id), type: 'select' } });
+    setSearch('');
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    onChange({ target: { name, value: '', type: 'select' } });
+    setSearch('');
+  };
+
+  return (
+    <label>
+      {label}
+      <div className="searchable-select" ref={wrapperRef}>
+        {/* Hidden input for form validation */}
+        {required && (
+          <input
+            tabIndex={-1}
+            autoComplete="off"
+            className="searchable-select-hidden"
+            value={value}
+            onChange={() => {}}
+            required
+          />
+        )}
+        <div className="searchable-select-control input" onClick={() => setOpen(!open)}>
+          {selectedOption ? (
+            <span className="searchable-select-value">
+              {selectedOption.name}
+              <button
+                type="button"
+                className="searchable-select-clear"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClear();
+                }}
+                title="Clear"
+              >
+                &times;
+              </button>
+            </span>
+          ) : (
+            <span className="searchable-select-placeholder">{placeholder}</span>
+          )}
+          <span className="searchable-select-arrow">{open ? '\u25B2' : '\u25BC'}</span>
+        </div>
+        {open && (
+          <div className="searchable-select-dropdown">
+            <input
+              type="text"
+              className="searchable-select-search input"
+              placeholder="Type to search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+            />
+            <ul className="searchable-select-options">
+              {filtered.length === 0 ? (
+                <li className="searchable-select-no-results">No results found</li>
+              ) : (
+                filtered.map((o) => (
+                  <li
+                    key={o.id}
+                    className={`searchable-select-option${String(o.id) === String(value) ? ' selected' : ''}`}
+                    onClick={() => handleSelect(o.id)}
+                  >
+                    {o.name}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    </label>
+  );
+};
 
 const MapProductVendorPage = () => {
   const navigate = useNavigate();
@@ -27,8 +129,8 @@ const MapProductVendorPage = () => {
         setError('');
 
         const [productsRes, vendorsRes] = await Promise.all([
-          fetchData('/products', { is_active: true, page: 1, limit: 1000 }),
-          fetchData('/vendors', { is_active: true, page: 1, limit: 1000 }),
+          fetchData('/products', { is_active: true, page: 1, limit: 100 }),
+          fetchData('/vendors', { is_active: true, page: 1, limit: 100 }),
         ]);
 
         const productsList = (productsRes?.data || []).map((p) => ({
@@ -71,10 +173,10 @@ const MapProductVendorPage = () => {
     const payload = {
       productId: parseInt(formValues.productId, 10),
       vendorId: parseInt(formValues.vendorId, 10),
-      vendorPrice: parseFloat(formValues.vendorPrice),
+      costPrice: parseFloat(formValues.vendorPrice),
       vendorSku: formValues.vendorSku || undefined,
-      stock: parseInt(formValues.stock, 10),
-      minOrderQty: parseInt(formValues.minOrderQty, 10) || 1,
+      stockQuantity: parseInt(formValues.stock, 10),
+      minimumOrderQuantity: parseInt(formValues.minOrderQty, 10) || 1,
       isAvailable: formValues.isAvailable,
     };
 
@@ -117,42 +219,26 @@ const MapProductVendorPage = () => {
         <h2>New Vendor Product Mapping</h2>
         <div className="form-grid">
           <div>
-            <label>
-              Product*
-              <select
-                name="productId"
-                className="input"
-                value={formValues.productId}
-                onChange={handleFieldChange}
-                required
-              >
-                <option value="">Select a product</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SearchableSelect
+              label="Product*"
+              name="productId"
+              options={products}
+              value={formValues.productId}
+              onChange={handleFieldChange}
+              placeholder="Search and select a product"
+              required
+            />
           </div>
           <div>
-            <label>
-              Vendor*
-              <select
-                name="vendorId"
-                className="input"
-                value={formValues.vendorId}
-                onChange={handleFieldChange}
-                required
-              >
-                <option value="">Select a vendor</option>
-                {vendors.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SearchableSelect
+              label="Vendor*"
+              name="vendorId"
+              options={vendors}
+              value={formValues.vendorId}
+              onChange={handleFieldChange}
+              placeholder="Search and select a vendor"
+              required
+            />
           </div>
           <div>
             <label>

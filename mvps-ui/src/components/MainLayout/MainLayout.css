@@ -7,7 +7,7 @@
   flex: 1;
   margin-left: 260px;
   transition: margin-left 0.3s ease;
-  background: var(--neutral-white);
+  background: var(--bg-primary);
   min-height: calc(100vh - var(--header-height, 66px));
 }
 
@@ -34,16 +34,16 @@
 .mobile-menu-toggle {
   background: none;
   border: none;
-  font-size: var(--font-size-lg);
+  font-size: var(--text-lg);
   cursor: pointer;
   color: var(--neutral-700);
   padding: var(--spacing-1);
 }
 
 .mobile-logo {
-  font-size: var(--font-size-base);
+  font-size: var(--text-base);
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--primary-light);
   margin: 0;
 }
 

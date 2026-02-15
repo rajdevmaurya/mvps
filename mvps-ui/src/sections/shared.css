@@ -48,12 +48,12 @@
 }
 
 .section-tab:hover {
-  color: var(--primary-600);
+  color: var(--primary-light);
 }
 
 .section-tab.active {
-  color: var(--primary-700);
-  border-bottom-color: var(--primary-600);
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-light);
   font-weight: 600;
 }
 

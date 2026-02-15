@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setOrders,
+  setPagination,
+  setLoading,
+  setError,
+} from '../../store/slices/ordersSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './OrdersPage.css';
 
 const OrdersPage = () => {
-  const [orders, setOrders] = useState([]);
+  const dispatch = useDispatch();
+  const { list: orders, pagination, loading, error } = useSelector(
+    (state) => state.orders,
+  );
+  const { page, totalPages, totalItems } = pagination;
+
   const [sampleItems, setSampleItems] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [selectedOrderNumber, setSelectedOrderNumber] = useState('');
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState('');
@@ -24,8 +31,8 @@ const OrdersPage = () => {
   useEffect(() => {
     async function loadOrders() {
       try {
-        setLoading(true);
-        setError('');
+        dispatch(setLoading(true));
+        dispatch(setError(null));
 
         const [ordersRes, customersRes] = await Promise.all([
           fetchData('/orders', { page, limit: PAGE_SIZE }),
@@ -61,23 +68,22 @@ const OrdersPage = () => {
           };
         });
 
-        setOrders(uiOrders);
+        dispatch(setOrders(uiOrders));
         setSampleItems([]);
         setSelectedOrderNumber('');
 
-        // Update pagination info from orders response
         let itemsCount = ordersData.length;
         let pagesCount = 1;
-        const pagination = ordersRes.pagination;
-        if (pagination) {
+        const paginationRes = ordersRes.pagination;
+        if (paginationRes) {
           const totalItemsValue =
-            typeof pagination.total_items === 'number'
-              ? pagination.total_items
-              : pagination.totalItems;
+            typeof paginationRes.total_items === 'number'
+              ? paginationRes.total_items
+              : paginationRes.totalItems;
           const totalPagesValue =
-            typeof pagination.total_pages === 'number'
-              ? pagination.total_pages
-              : pagination.totalPages;
+            typeof paginationRes.total_pages === 'number'
+              ? paginationRes.total_pages
+              : paginationRes.totalPages;
 
           if (typeof totalItemsValue === 'number') {
             itemsCount = totalItemsValue;
@@ -87,19 +93,23 @@ const OrdersPage = () => {
           }
         }
 
-        setTotalItems(itemsCount);
-        setTotalPages(pagesCount || 1);
+        dispatch(
+          setPagination({
+            page,
+            totalItems: itemsCount,
+            totalPages: pagesCount || 1,
+          }),
+        );
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
-        setError('Failed to load orders.');
+        dispatch(setError('Failed to load orders.'));
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     }
 
     loadOrders();
-  }, [page]);
+  }, [page, dispatch]);
 
   const handleViewDetails = async (order) => {
     setDetailsError('');
@@ -120,7 +130,6 @@ const OrdersPage = () => {
       }));
       setSampleItems(items);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
       setDetailsError('Failed to load order details.');
     } finally {
@@ -134,6 +143,10 @@ const OrdersPage = () => {
     setSelectedOrderNumber('');
     setDetailsError('');
     setDetailsLoading(false);
+  };
+
+  const handlePageChange = (newPage) => {
+    dispatch(setPagination({ page: newPage }));
   };
 
   return (
@@ -211,13 +224,13 @@ const OrdersPage = () => {
           totalItems={totalItems}
           pageSize={PAGE_SIZE}
           entityLabel="orders"
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
         />
       </section>
 
       {itemsModalOpen && (
-        <div className="orders-modal-backdrop">
-          <div className="orders-modal">
+        <div className="modal-backdrop" onClick={closeItemsModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Order Breakdown</h2>
             {selectedOrderNumber && (
               <p>
@@ -265,7 +278,7 @@ const OrdersPage = () => {
                 </table>
               </div>
             )}
-            <div className="orders-modal-actions">
+            <div className="modal-footer">
               <button
                 type="button"
                 className="btn-secondary"

@@ -25,7 +25,7 @@
 }
 
 .sidebar-logo {
-  font-size: var(--font-size-xl);
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--primary-dark);
   margin: 0;

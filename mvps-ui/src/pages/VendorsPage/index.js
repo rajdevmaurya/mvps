@@ -1,25 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setVendors,
+  setPagination,
+  setLoading,
+  setError,
+} from '../../store/slices/vendorsSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './VendorsPage.css';
 
 const VendorsPage = () => {
+  const dispatch = useDispatch();
+  const { list: vendors, pagination, loading, error } = useSelector(
+    (state) => state.vendors,
+  );
+  const { page, totalPages, totalItems } = pagination;
+
   const [search, setSearch] = useState('');
-  const [vendors, setVendors] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const PAGE_SIZE = 20;
 
   const loadVendors = useCallback(async () => {
     try {
-      setLoading(true);
-      setError('');
+      dispatch(setLoading(true));
+      dispatch(setError(null));
 
       const [perfResult, vendorsResult] = await Promise.allSettled([
         fetchData('/vendors/performance'),
@@ -73,21 +80,20 @@ const VendorsPage = () => {
         })
         .filter(Boolean);
 
-      setVendors(rows);
+      dispatch(setVendors(rows));
 
-      // Update pagination info from vendors response
       let itemsCount = vendorList.length;
       let pagesCount = 1;
-      const pagination = vendorsRes?.pagination;
-      if (pagination) {
+      const paginationRes = vendorsRes?.pagination;
+      if (paginationRes) {
         const totalItemsValue =
-          typeof pagination.total_items === 'number'
-            ? pagination.total_items
-            : pagination.totalItems;
+          typeof paginationRes.total_items === 'number'
+            ? paginationRes.total_items
+            : paginationRes.totalItems;
         const totalPagesValue =
-          typeof pagination.total_pages === 'number'
-            ? pagination.total_pages
-            : pagination.totalPages;
+          typeof paginationRes.total_pages === 'number'
+            ? paginationRes.total_pages
+            : paginationRes.totalPages;
 
         if (typeof totalItemsValue === 'number') {
           itemsCount = totalItemsValue;
@@ -97,20 +103,24 @@ const VendorsPage = () => {
         }
       }
 
-      setTotalItems(itemsCount);
-      setTotalPages(pagesCount || 1);
+      dispatch(
+        setPagination({
+          page,
+          totalItems: itemsCount,
+          totalPages: pagesCount || 1,
+        }),
+      );
 
       if (!perfRes || !vendorsRes) {
-        setError('Some vendor performance data is currently unavailable.');
+        dispatch(setError('Some vendor performance data is currently unavailable.'));
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
-      setError('Failed to load vendors.');
+      dispatch(setError('Failed to load vendors.'));
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
-  }, [page]);
+  }, [page, dispatch]);
 
   useEffect(() => {
     loadVendors();
@@ -126,12 +136,8 @@ const VendorsPage = () => {
     );
   }, [search, vendors]);
 
-  const goToNewVendor = () => {
-    navigate('/vendors/new');
-  };
-
-  const goToMapProductVendor = () => {
-    navigate('/map-product-vendor');
+  const handlePageChange = (newPage) => {
+    dispatch(setPagination({ page: newPage }));
   };
 
   return (
@@ -153,14 +159,14 @@ const VendorsPage = () => {
           <button
             type="button"
             className="btn-secondary"
-            onClick={goToMapProductVendor}
+            onClick={() => navigate('/vendors/products')}
           >
             Map Product to Vendor
           </button>
           <button
             type="button"
             className="btn-primary"
-            onClick={goToNewVendor}
+            onClick={() => navigate('/vendors/new')}
           >
             + Add vendor
           </button>
@@ -218,7 +224,7 @@ const VendorsPage = () => {
         totalItems={totalItems}
         pageSize={PAGE_SIZE}
         entityLabel="vendors"
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );

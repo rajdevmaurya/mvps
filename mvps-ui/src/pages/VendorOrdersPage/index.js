@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 import { fetchData, postJson, putJson, deleteJson } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './VendorOrdersPage.css';
@@ -16,7 +15,6 @@ const statusOptions = [
 ];
 
 const VendorOrdersPage = () => {
-  const location = useLocation();
   const [vendors, setVendors] = useState([]);
   const createRef = useRef(null);
   const [showCreate, setShowCreate] = useState(false);

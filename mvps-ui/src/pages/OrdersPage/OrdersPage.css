@@ -1,7 +1,6 @@
 /* ============================================================================
    Orders Page Styles
    Uses global .btn-primary, .btn-secondary, .link-button, .card, .modal
-   REMOVED duplicate button styles (lines 52-97)
    ============================================================================ */
 
 /* Order Cards Grid - Responsive */
@@ -23,7 +22,7 @@
   }
 }
 
-/* Order Card - Uses global .card */
+/* Order Card */
 .orders-page .order-card {
   background: var(--bg-primary);
   border-radius: var(--radius-md);
@@ -76,7 +75,7 @@
   flex-wrap: wrap;
 }
 
-/* Toolbar - Responsive */
+/* Toolbar */
 .orders-page .toolbar {
   display: flex;
   justify-content: flex-end;
@@ -89,39 +88,4 @@
   .orders-page .toolbar {
     flex-direction: column;
   }
-}
-
-/* Orders Modal - Uses global .modal-backdrop and .modal */
-.orders-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-modal-backdrop);
-}
-
-.orders-modal {
-  background: var(--bg-primary);
-  border-radius: var(--radius-md);
-  max-width: 720px;
-  width: calc(100% - var(--spacing-8));
-  max-height: 80vh;
-  overflow: auto;
-  padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
-  box-shadow: var(--shadow-xl);
-}
-
-@media (max-width: 640px) {
-  .orders-modal {
-    width: calc(100% - var(--spacing-4));
-  }
-}
-
-.orders-modal-actions {
-  margin-top: var(--spacing-4);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-3);
 }

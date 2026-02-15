@@ -4,8 +4,6 @@ import './App.css';
 import MainLayout from './components/MainLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Keep Dashboard and Layout for now (non-section pages)
-import Layout from './layout/Layout';
 import Dashboard from './pages/Dashboard';
 
 // Lazy load sections
@@ -35,7 +33,6 @@ const InventoryPage = lazy(() => import('./pages/InventoryPage'));
 const StockHistoryPage = lazy(() => import('./pages/StockHistoryPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const CategoryDetailsPage = lazy(() => import('./pages/CategoryDetailsPage'));
-const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 
@@ -48,14 +45,7 @@ function App() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* Old Layout routes (Dashboard, Reports, Search, Categories) */}
-          <Route element={<Layout />}>
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/categories/new" element={<CategoryDetailsPage />} />
-            <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
-          </Route>
-
-          {/* New MainLayout with Sidebar and nested sections */}
+          {/* MainLayout with Sidebar and nested sections */}
           <Route path="/" element={<MainLayout />}>
             {/* Default redirect to dashboard */}
             <Route index element={<Navigate to="/dashboard" replace />} />
@@ -123,6 +113,11 @@ function App() {
 
             {/* Analytics Page */}
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="reports" element={<Navigate to="/analytics" replace />} />
+
+            {/* Categories */}
+            <Route path="categories/new" element={<CategoryDetailsPage />} />
+            <Route path="categories/:categoryId" element={<CategoryDetailsPage />} />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/products/catalog" replace />} />

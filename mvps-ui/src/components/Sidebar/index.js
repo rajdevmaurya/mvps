@@ -34,7 +34,7 @@ const Sidebar = () => {
       ],
     },
     {
-      title: 'Products',
+      title: 'Products Management',
       icon: '📦',
       items: [
         { label: 'Products Catalog', path: '/products/catalog' },
@@ -45,19 +45,19 @@ const Sidebar = () => {
       icon: '🏢',
       items: [
         { label: 'Vendor List', path: '/vendors/list' },
-        { label: 'Vendor Products', path: '/vendors/products' },
+        { label: 'Vendor Product Mapping', path: '/vendors/products' },
         { label: 'Purchase Orders', path: '/vendors/orders' },
       ],
     },
     {
       title: 'Customers',
       icon: '👥',
-      items: [{ label: 'Customer List', path: '/customers/list' }],
+      items: [{ label: 'Customer', path: '/customers/list' }],
     },
     {
-      title: 'Orders',
+      title: 'Orders Management',
       icon: '🛒',
-      items: [{ label: 'Order List', path: '/orders/list' }],
+      items: [{ label: 'Orders', path: '/orders/list' }],
     },
     {
       title: 'Inventory',
@@ -74,7 +74,10 @@ const Sidebar = () => {
   // Single menu items (no sub-sections)
   const singleItems = [
     { label: 'Dashboard', icon: '🏠', path: '/dashboard' },
-    { label: 'Analytics', icon: '📈', path: '/analytics' },
+  ];
+
+  const bottomItems = [
+    { label: 'Analytics & Reports', icon: '📈', path: '/analytics' },
   ];
 
   const handleLogout = useCallback(() => {
@@ -122,6 +125,22 @@ const Sidebar = () => {
           {sections.map((section) => (
             <SidebarSection key={section.title} {...section} />
           ))}
+          <ul className="sidebar-menu">
+            {bottomItems.map((item) => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `sidebar-menu-item ${isActive ? 'active' : ''}`
+                  }
+                  end
+                >
+                  <span className="sidebar-menu-icon">{item.icon}</span>
+                  <span className="sidebar-menu-label">{item.label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </nav>
         <div className="sidebar-footer">
           <button

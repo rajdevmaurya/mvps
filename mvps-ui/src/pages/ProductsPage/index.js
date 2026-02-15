@@ -1,21 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setProducts,
+  setPagination,
+  setLoading,
+  setError,
+} from '../../store/slices/productsSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './ProductsPage.css';
-// No extra styling import
 
 const ProductsPage = () => {
+  const dispatch = useDispatch();
+  const { list: products, pagination, loading, error } = useSelector(
+    (state) => state.products,
+  );
+  const { page, totalPages, totalItems } = pagination;
+
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [products, setProducts] = useState([]);
   const [lowestPriceProducts, setLowestPriceProducts] = useState([]);
   const [categories, setCategories] = useState(['all']);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const navigate = useNavigate();
 
@@ -24,8 +30,8 @@ const ProductsPage = () => {
   useEffect(() => {
     async function loadProducts() {
       try {
-        setLoading(true);
-        setError('');
+        dispatch(setLoading(true));
+        dispatch(setError(null));
 
         const [productsResult, lowestResult, categoriesResult] =
           await Promise.allSettled([
@@ -88,23 +94,22 @@ const ProductsPage = () => {
           new Set(mappedProducts.map((p) => p.category)),
         ).sort();
 
-        setProducts(mappedProducts);
+        dispatch(setProducts(mappedProducts));
         setLowestPriceProducts(mappedLowest);
         setCategories(['all', ...uniqueCategories]);
 
-        // Update pagination info for UI controls
         let itemsCount = productsData.length;
         let pagesCount = 1;
-        const pagination = productsRes?.pagination;
-        if (pagination) {
+        const paginationRes = productsRes?.pagination;
+        if (paginationRes) {
           const totalItemsValue =
-            typeof pagination.total_items === 'number'
-              ? pagination.total_items
-              : pagination.totalItems;
+            typeof paginationRes.total_items === 'number'
+              ? paginationRes.total_items
+              : paginationRes.totalItems;
           const totalPagesValue =
-            typeof pagination.total_pages === 'number'
-              ? pagination.total_pages
-              : pagination.totalPages;
+            typeof paginationRes.total_pages === 'number'
+              ? paginationRes.total_pages
+              : paginationRes.totalPages;
 
           if (typeof totalItemsValue === 'number') {
             itemsCount = totalItemsValue;
@@ -114,25 +119,29 @@ const ProductsPage = () => {
           }
         }
 
-        setTotalItems(itemsCount);
-        setTotalPages(pagesCount || 1);
+        dispatch(
+          setPagination({
+            page,
+            totalItems: itemsCount,
+            totalPages: pagesCount || 1,
+          }),
+        );
 
         if (!productsRes) {
-          setError('Failed to load products list.');
+          dispatch(setError('Failed to load products list.'));
         } else if (!lowestRes || !categoriesRes) {
-          setError('Some product helper data is currently unavailable.');
+          dispatch(setError('Some product helper data is currently unavailable.'));
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
-        setError('Failed to load products.');
+        dispatch(setError('Failed to load products.'));
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     }
 
     loadProducts();
-  }, [page]);
+  }, [page, dispatch]);
 
   const rows = useMemo(() => {
     return products.map((p) => ({
@@ -154,15 +163,9 @@ const ProductsPage = () => {
     });
   }, [rows, search, categoryFilter]);
 
-  const goToNewProduct = () => {
-    navigate('/products/new');
+  const handlePageChange = (newPage) => {
+    dispatch(setPagination({ page: newPage }));
   };
-
-  const goToManageCategories = () => {
-    navigate('/categories/new');
-  };
-
-  // ...existing code...
 
   return (
     <div className="page products-page container">
@@ -194,14 +197,14 @@ const ProductsPage = () => {
           <button
             type="button"
             className="btn-secondary"
-            onClick={goToManageCategories}
+            onClick={() => navigate('/categories/new')}
           >
             Manage Categories
           </button>
           <button
             type="button"
             className="btn-primary"
-            onClick={goToNewProduct}
+            onClick={() => navigate('/products/new')}
           >
             + Add product
           </button>
@@ -253,7 +256,7 @@ const ProductsPage = () => {
         totalItems={totalItems}
         pageSize={PAGE_SIZE}
         entityLabel="products"
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );

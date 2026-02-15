@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setItems,
+  setLoading,
+  setError,
+} from '../../store/slices/inventorySlice';
 import { fetchData, patchJson } from '../../apiClient';
 import './InventoryPage.css';
 
 const InventoryPage = () => {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const { items: rows, loading, error } = useSelector(
+    (state) => state.inventory,
+  );
 
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [stockLoading, setStockLoading] = useState(false);
@@ -21,8 +28,8 @@ const InventoryPage = () => {
   useEffect(() => {
     async function loadInventory() {
       try {
-        setLoading(true);
-        setError('');
+        dispatch(setLoading(true));
+        dispatch(setError(null));
 
         const [inventoryResult, comparisonResult] = await Promise.allSettled([
           fetchData('/analytics/inventory-status'),
@@ -71,22 +78,21 @@ const InventoryPage = () => {
           };
         });
 
-        setRows(productRows);
+        dispatch(setItems(productRows));
 
         if (!inventoryRes || !comparisonRes) {
-          setError('Some inventory data is currently unavailable.');
+          dispatch(setError('Some inventory data is currently unavailable.'));
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
-        setError('Failed to load inventory.');
+        dispatch(setError('Failed to load inventory.'));
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     }
 
     loadInventory();
-  }, []);
+  }, [dispatch]);
 
   const openStockManager = async (productRow) => {
     setSelectedProduct(productRow);
@@ -111,13 +117,10 @@ const InventoryPage = () => {
       const mapped = list
         .map((vp) => {
           const vendorProductId = vp.vendor_product_id ?? vp.vendorProductId;
-          // vendorName can come in multiple shapes: vendor_name, vendorName,
-          // or nested vendor object { name / vendor_name / vendorName }
           let vendorName = vp.vendor_name ?? vp.vendorName;
           if (!vendorName && vp.vendor) {
             vendorName = vp.vendor.vendor_name ?? vp.vendor.vendorName ?? vp.vendor.name;
           }
-          // As a last resort, try vendor id
           const vendorId = vp.vendor_id ?? vp.vendorId ?? vp.vendor?.vendor_id ?? vp.vendor?.vendorId;
           if (!vendorName && vendorId != null) vendorName = `Vendor #${vendorId}`;
 
@@ -135,15 +138,11 @@ const InventoryPage = () => {
 
       setVendorStocks(mapped);
 
-      // Load persisted stock history from backend for all vendor products of this item
       if (mapped.length > 0) {
         try {
           setServerHistoryLoading(true);
           const allHistory = [];
-          // Fetch history per vendor product and enrich with vendor display info
-          // eslint-disable-next-line no-restricted-syntax
           for (const v of mapped) {
-            // eslint-disable-next-line no-await-in-loop
             const historyRes = await fetchData(
               `/vendor-products/${v.vendorProductId}/stock-history`,
             );
@@ -166,7 +165,6 @@ const InventoryPage = () => {
             });
           }
 
-          // Sort newest first
           allHistory.sort((a, b) => {
             const da = a.changedAt ? new Date(a.changedAt).getTime() : 0;
             const db = b.changedAt ? new Date(b.changedAt).getTime() : 0;
@@ -176,7 +174,6 @@ const InventoryPage = () => {
           setServerStockHistory(allHistory);
           setServerHistoryError('');
         } catch (historyErr) {
-          // eslint-disable-next-line no-console
           console.error(historyErr);
           setServerHistoryError('Failed to load full stock history.');
         } finally {
@@ -184,7 +181,6 @@ const InventoryPage = () => {
         }
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
       setStockError('Failed to load vendor stock for this product.');
     } finally {
@@ -221,16 +217,10 @@ const InventoryPage = () => {
 
     vendorStocks.forEach((v) => {
       const raw = stockEdits[v.vendorProductId];
-      if (raw == null || raw === '') {
-        return;
-      }
+      if (raw == null || raw === '') return;
       const nextQty = Number(raw);
-      if (!Number.isFinite(nextQty) || nextQty < 0) {
-        return;
-      }
-      if (nextQty === v.stockQuantity) {
-        return;
-      }
+      if (!Number.isFinite(nextQty) || nextQty < 0) return;
+      if (nextQty === v.stockQuantity) return;
       updates.push({
         vendorProductId: v.vendorProductId,
         stockQuantity: nextQty,
@@ -266,11 +256,13 @@ const InventoryPage = () => {
         0,
       );
 
-      setRows((prevRows) =>
-        prevRows.map((r) =>
-          r.productId === selectedProduct.productId
-            ? { ...r, totalStockAllVendors: newTotal }
-            : r,
+      dispatch(
+        setItems(
+          rows.map((r) =>
+            r.productId === selectedProduct.productId
+              ? { ...r, totalStockAllVendors: newTotal }
+              : r,
+          ),
         ),
       );
 
@@ -289,7 +281,6 @@ const InventoryPage = () => {
       setStockError('');
       setStockModalOpen(false);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
       setStockError('Failed to update stock. Please try again.');
       setStockLoading(false);
@@ -379,8 +370,8 @@ const InventoryPage = () => {
       )}
 
       {stockModalOpen && (
-        <div className="inventory-modal-backdrop">
-          <div className="inventory-modal">
+        <div className="modal-backdrop" onClick={closeStockManager}>
+          <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
             <h2>
               Manage stock — {selectedProduct?.productName}
             </h2>
@@ -475,7 +466,7 @@ const InventoryPage = () => {
                   )}
               </section>
             )}
-            <div className="inventory-modal-actions">
+            <div className="modal-footer">
               <button
                 type="button"
                 className="btn-primary"

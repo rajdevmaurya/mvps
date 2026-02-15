@@ -1,20 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setCustomers,
+  setFilters,
+  setPagination,
+  setLoading,
+  setError,
+} from '../../store/slices/customersSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import './CustomersPage.css';
 
 const CustomersPage = () => {
-  const [customers, setCustomers] = useState([]);
-  const [search, setSearch] = useState('');
-  const [customerType, setCustomerType] = useState('');
+  const dispatch = useDispatch();
+  const { list: customers, filters, pagination, loading, error } = useSelector(
+    (state) => state.customers,
+  );
+  const { page, totalPages, totalItems } = pagination;
+  const { customerType, city, search } = filters;
+
   const [status, setStatus] = useState('');
-  const [city, setCity] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const navigate = useNavigate();
 
@@ -22,8 +28,8 @@ const CustomersPage = () => {
 
   const loadCustomers = useCallback(async () => {
     try {
-      setLoading(true);
-      setError('');
+      dispatch(setLoading(true));
+      dispatch(setError(null));
 
       const isActiveParam =
         status === 'active' ? true : status === 'inactive' ? false : undefined;
@@ -53,20 +59,20 @@ const CustomersPage = () => {
         registrationDate: c.registrationDate ?? c.registration_date,
       }));
 
-      setCustomers(mapped);
+      dispatch(setCustomers(mapped));
 
       let itemsCount = list.length;
       let pagesCount = 1;
-      const pagination = res?.pagination;
-      if (pagination) {
+      const paginationRes = res?.pagination;
+      if (paginationRes) {
         const totalItemsValue =
-          typeof pagination.totalItems === 'number'
-            ? pagination.totalItems
-            : pagination.total_items;
+          typeof paginationRes.totalItems === 'number'
+            ? paginationRes.totalItems
+            : paginationRes.total_items;
         const totalPagesValue =
-          typeof pagination.totalPages === 'number'
-            ? pagination.totalPages
-            : pagination.total_pages;
+          typeof paginationRes.totalPages === 'number'
+            ? paginationRes.totalPages
+            : paginationRes.total_pages;
 
         if (typeof totalItemsValue === 'number') {
           itemsCount = totalItemsValue;
@@ -76,16 +82,20 @@ const CustomersPage = () => {
         }
       }
 
-      setTotalItems(itemsCount);
-      setTotalPages(pagesCount || 1);
+      dispatch(
+        setPagination({
+          page,
+          totalItems: itemsCount,
+          totalPages: pagesCount || 1,
+        }),
+      );
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
-      setError('Failed to load customers.');
+      dispatch(setError('Failed to load customers.'));
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
-  }, [page, customerType, status, city, search]);
+  }, [page, customerType, status, city, search, dispatch]);
 
   useEffect(() => {
     loadCustomers();
@@ -100,10 +110,6 @@ const CustomersPage = () => {
         .some((field) => field.toLowerCase().includes(term)),
     );
   }, [customers, search]);
-
-  const goToNewCustomer = () => {
-    navigate('/customers/new');
-  };
 
   const formatDate = (value) => {
     if (!value) return '';
@@ -129,14 +135,14 @@ const CustomersPage = () => {
           className="input"
           placeholder="Search by name, email or phone"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => dispatch(setFilters({ search: e.target.value }))}
         />
         <select
           className="input"
           value={customerType}
           onChange={(e) => {
-            setCustomerType(e.target.value);
-            setPage(1);
+            dispatch(setFilters({ customerType: e.target.value }));
+            dispatch(setPagination({ page: 1 }));
           }}
         >
           <option value="">All types</option>
@@ -149,7 +155,7 @@ const CustomersPage = () => {
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
-            setPage(1);
+            dispatch(setPagination({ page: 1 }));
           }}
         >
           <option value="">All statuses</option>
@@ -162,14 +168,14 @@ const CustomersPage = () => {
           placeholder="Filter by city"
           value={city}
           onChange={(e) => {
-            setCity(e.target.value);
-            setPage(1);
+            dispatch(setFilters({ city: e.target.value }));
+            dispatch(setPagination({ page: 1 }));
           }}
         />
         <button
           type="button"
           className="btn-primary"
-          onClick={goToNewCustomer}
+          onClick={() => navigate('/customers/new')}
         >
           + Add customer
         </button>
@@ -224,7 +230,7 @@ const CustomersPage = () => {
         totalItems={totalItems}
         pageSize={PAGE_SIZE}
         entityLabel="customers"
-        onPageChange={setPage}
+        onPageChange={(newPage) => dispatch(setPagination({ page: newPage }))}
       />
     </div>
   );
