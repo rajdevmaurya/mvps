@@ -48,9 +48,7 @@
 }
 
 .content-wrapper {
-  padding: var(--spacing-2) var(--spacing-4);
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 0 var(--spacing-5) var(--spacing-2);
 }
 
 @media (max-width: 768px) {
@@ -63,6 +61,6 @@
   }
 
   .content-wrapper {
-    padding: var(--spacing-4);
+    padding: 0 var(--spacing-4) var(--spacing-4);
   }
 }

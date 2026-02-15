@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar, setSidebarOpen, setIsMobile } from '../../store/slices/uiSlice';
@@ -25,6 +25,14 @@ const Sidebar = () => {
 
   // Collapsible sections with sub-items
   const sections = [
+    {
+      title: 'Search',
+      icon: '🔍',
+      items: [
+        { label: 'Product Search', path: '/search/products' },
+        { label: 'Vendor Search', path: '/search/vendors' },
+      ],
+    },
     {
       title: 'Products',
       icon: '📦',
@@ -66,9 +74,22 @@ const Sidebar = () => {
 
   // Single menu items (no sub-sections)
   const singleItems = [
-    { label: 'Dashboard', icon: '🏠', path: '/' },
+    { label: 'Dashboard', icon: '🏠', path: '/dashboard' },
     { label: 'Analytics', icon: '📈', path: '/analytics' },
   ];
+
+  const handleLogout = useCallback(() => {
+    try {
+      import('../../auth/tokenManager').then(mod => {
+        try { mod.default.clear(); } catch (e) { /* ignore */ }
+        window.location.href = '/logout';
+      }).catch(() => {
+        window.location.href = '/logout';
+      });
+    } catch (e) {
+      window.location.href = '/logout';
+    }
+  }, []);
 
   return (
     <>
@@ -91,7 +112,7 @@ const Sidebar = () => {
                   className={({ isActive }) =>
                     `sidebar-menu-item ${isActive ? 'active' : ''}`
                   }
-                  end={item.path === '/'}
+                  end
                 >
                   <span className="sidebar-menu-icon">{item.icon}</span>
                   <span className="sidebar-menu-label">{item.label}</span>
@@ -103,6 +124,21 @@ const Sidebar = () => {
             <SidebarSection key={section.title} {...section} />
           ))}
         </nav>
+        <div className="sidebar-footer">
+          <button
+            type="button"
+            className="sidebar-logout-btn"
+            onClick={handleLogout}
+            title="Logout"
+          >
+            <svg className="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Logout
+          </button>
+        </div>
       </aside>
     </>
   );

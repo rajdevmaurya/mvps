@@ -52,17 +52,22 @@ function App() {
         <Routes>
           {/* Old Layout routes (Dashboard, Reports, Search, Categories) */}
           <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/search" element={<SearchPage />} />
             <Route path="/categories/new" element={<CategoryDetailsPage />} />
             <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
           </Route>
 
           {/* New MainLayout with Sidebar and nested sections */}
           <Route path="/" element={<MainLayout />}>
-            {/* Default redirect to products catalog */}
-            <Route index element={<Navigate to="/products/catalog" replace />} />
+            {/* Default redirect to dashboard */}
+            <Route index element={<Navigate to="/dashboard" replace />} />
+
+            {/* Dashboard */}
+            <Route path="dashboard" element={<Dashboard />} />
+
+            {/* Search Pages */}
+            <Route path="search/products" element={<SearchPage type="products" />} />
+            <Route path="search/vendors" element={<SearchPage type="vendors" />} />
 
             {/* Products Section */}
             <Route path="products" element={<ProductsSection />}>

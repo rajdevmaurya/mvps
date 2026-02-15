@@ -661,14 +661,14 @@ input[type="radio"] {
    PAGE TITLES & SUBTITLES
    ======================================== */
 .page-title {
-  font-size: var(--text-3xl);
+  font-size: var(--text-lg);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
-  margin-bottom: var(--spacing-1);
+  margin: 0 0 var(--spacing-1) 0;
 }
 
 .page-subtitle {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-6);
+  margin: 0 0 var(--spacing-3) 0;
 }

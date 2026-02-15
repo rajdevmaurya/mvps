@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData } from '../../apiClient';
+import Breadcrumb from '../../components/Breadcrumb';
 import './SearchPage.css';
 
-const SearchPage = () => {
+const SearchPage = ({ type }) => {
   // Product search state
   const [productQuery, setProductQuery] = useState('');
   const [minPrice, setMinPrice] = useState('');
@@ -131,247 +132,267 @@ const SearchPage = () => {
     [vendorQuery, vendorCity, vendorState, vendorIsActive],
   );
 
+  const showProducts = !type || type === 'products';
+  const showVendors = !type || type === 'vendors';
+
+  const breadcrumbs = [
+    { label: 'Home', path: '/' },
+    { label: type === 'products' ? 'Product Search' : type === 'vendors' ? 'Vendor Search' : 'Search', isLast: true },
+  ];
+
   return (
     <div className="page search-page container">
-      <h1 className="page-title">Search</h1>
+      <div className="section-breadcrumb">
+        <Breadcrumb items={breadcrumbs} />
+      </div>
+      <h1 className="page-title">
+        {type === 'products' ? 'Product Search' : type === 'vendors' ? 'Vendor Search' : 'Search'}
+      </h1>
       <p className="page-subtitle">
-        Quickly find products by price and availability, and locate vendors by
-        name or location.
+        {type === 'products'
+          ? 'Filter products by name, price range, prescription requirement, and stock.'
+          : type === 'vendors'
+            ? 'Search vendors by name, city, state, and status.'
+            : 'Quickly find products by price and availability, and locate vendors by name or location.'}
       </p>
 
       <div className="search-grid">
-        <section className="search-panel">
-          <div className="search-panel__header">
-            <h2>Product search</h2>
-            <p>Filter by name, price range, prescription requirement, and stock.</p>
-          </div>
-          <form className="search-form" onSubmit={handleProductSearch}>
-            <div className="search-form-row">
-              <label className="search-label" htmlFor="productQuery">
-                Search term
-              </label>
-              <input
-                id="productQuery"
-                type="search"
-                className="input"
-                placeholder="Product, generic name, or manufacturer"
-                value={productQuery}
-                onChange={(e) => setProductQuery(e.target.value)}
-              />
+        {showProducts && (
+          <section className="search-panel">
+            <div className="search-panel__header">
+              <h2>Product search</h2>
+              <p>Filter by name, price range, prescription requirement, and stock.</p>
             </div>
-            <div className="search-form-row search-form-row--two-column">
-              <div>
-                <label className="search-label" htmlFor="minPrice">
-                  Min price (₹)
+            <form className="search-form" onSubmit={handleProductSearch}>
+              <div className="search-form-row">
+                <label className="search-label" htmlFor="productQuery">
+                  Search term
                 </label>
                 <input
-                  id="minPrice"
-                  type="number"
+                  id="productQuery"
+                  type="search"
                   className="input"
-                  min="0"
-                  step="0.01"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
+                  placeholder="Product, generic name, or manufacturer"
+                  value={productQuery}
+                  onChange={(e) => setProductQuery(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="search-label" htmlFor="maxPrice">
-                  Max price (₹)
+              <div className="search-form-row search-form-row--two-column">
+                <div>
+                  <label className="search-label" htmlFor="minPrice">
+                    Min price (₹)
+                  </label>
+                  <input
+                    id="minPrice"
+                    type="number"
+                    className="input"
+                    min="0"
+                    step="0.01"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="search-label" htmlFor="maxPrice">
+                    Max price (₹)
+                  </label>
+                  <input
+                    id="maxPrice"
+                    type="number"
+                    className="input"
+                    min="0"
+                    step="0.01"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="search-form-row search-form-row--two-column">
+                <div>
+                  <label className="search-label" htmlFor="prescriptionRequired">
+                    Prescription
+                  </label>
+                  <select
+                    id="prescriptionRequired"
+                    className="input"
+                    value={prescriptionRequired}
+                    onChange={(e) => setPrescriptionRequired(e.target.value)}
+                  >
+                    <option value="any">Any</option>
+                    <option value="true">Required</option>
+                    <option value="false">Not required</option>
+                  </select>
+                </div>
+                <div className="checkbox-inline">
+                  <label htmlFor="inStockOnly">
+                    <input
+                      id="inStockOnly"
+                      type="checkbox"
+                      checked={inStockOnly}
+                      onChange={(e) => setInStockOnly(e.target.checked)}
+                    />
+                    In stock only
+                  </label>
+                </div>
+              </div>
+              <div className="search-form-actions">
+                <button type="submit" className="btn-primary">
+                  {productLoading ? 'Searching…' : 'Search products'}
+                </button>
+                {productError && !productLoading && (
+                  <span className="error-message">{productError}</span>
+                )}
+              </div>
+            </form>
+
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Generic</th>
+                    <th>Best vendor</th>
+                    <th>Price (₹)</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productResults.map((row, index) => (
+                    <tr key={row.vendorProductId ?? row.productId ?? `product-${index}`}>
+                      <td>{row.productName}</td>
+                      <td>{row.genericName}</td>
+                      <td>{row.vendorName}</td>
+                      <td>
+                        {row.finalPrice != null
+                          ? Number(row.finalPrice).toFixed(2)
+                          : '-'}
+                      </td>
+                      <td>{row.stockQuantity}</td>
+                      <td>
+                        {row.productId && (
+                          <button
+                            type="button"
+                            className="link-button"
+                            onClick={() => navigate(`/products/${row.productId}`)}
+                          >
+                            View product
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {showVendors && (
+          <section className="search-panel">
+            <div className="search-panel__header">
+              <h2>Vendor search</h2>
+              <p>Search vendors by name, city, state, and status.</p>
+            </div>
+            <form className="search-form" onSubmit={handleVendorSearch}>
+              <div className="search-form-row">
+                <label className="search-label" htmlFor="vendorQuery">
+                  Search term
                 </label>
                 <input
-                  id="maxPrice"
-                  type="number"
+                  id="vendorQuery"
+                  type="search"
                   className="input"
-                  min="0"
-                  step="0.01"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
+                  placeholder="Vendor name or city"
+                  value={vendorQuery}
+                  onChange={(e) => setVendorQuery(e.target.value)}
                 />
               </div>
-            </div>
-            <div className="search-form-row search-form-row--two-column">
-              <div>
-                <label className="search-label" htmlFor="prescriptionRequired">
-                  Prescription
+              <div className="search-form-row search-form-row--two-column">
+                <div>
+                  <label className="search-label" htmlFor="vendorCity">
+                    City
+                  </label>
+                  <input
+                    id="vendorCity"
+                    type="text"
+                    className="input"
+                    value={vendorCity}
+                    onChange={(e) => setVendorCity(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="search-label" htmlFor="vendorState">
+                    State
+                  </label>
+                  <input
+                    id="vendorState"
+                    type="text"
+                    className="input"
+                    value={vendorState}
+                    onChange={(e) => setVendorState(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="search-form-row">
+                <label className="search-label" htmlFor="vendorIsActive">
+                  Status
                 </label>
                 <select
-                  id="prescriptionRequired"
+                  id="vendorIsActive"
                   className="input"
-                  value={prescriptionRequired}
-                  onChange={(e) => setPrescriptionRequired(e.target.value)}
+                  value={vendorIsActive}
+                  onChange={(e) => setVendorIsActive(e.target.value)}
                 >
+                  <option value="true">Active only</option>
+                  <option value="false">Inactive only</option>
                   <option value="any">Any</option>
-                  <option value="true">Required</option>
-                  <option value="false">Not required</option>
                 </select>
               </div>
-              <div className="checkbox-inline">
-                <label htmlFor="inStockOnly">
-                  <input
-                    id="inStockOnly"
-                    type="checkbox"
-                    checked={inStockOnly}
-                    onChange={(e) => setInStockOnly(e.target.checked)}
-                  />
-                  In stock only
-                </label>
+              <div className="search-form-actions">
+                <button type="submit" className="btn-primary">
+                  {vendorLoading ? 'Searching…' : 'Search vendors'}
+                </button>
+                {vendorError && !vendorLoading && (
+                  <span className="error-message">{vendorError}</span>
+                )}
               </div>
-            </div>
-            <div className="search-form-actions">
-              <button type="submit" className="btn-primary">
-                {productLoading ? 'Searching…' : 'Search products'}
-              </button>
-              {productError && !productLoading && (
-                <span className="error-message">{productError}</span>
-              )}
-            </div>
-          </form>
+            </form>
 
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Generic</th>
-                  <th>Best vendor</th>
-                  <th>Price (₹)</th>
-                  <th>Stock</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productResults.map((row, index) => (
-                  <tr key={row.vendorProductId ?? row.productId ?? `product-${index}`}>
-                    <td>{row.productName}</td>
-                    <td>{row.genericName}</td>
-                    <td>{row.vendorName}</td>
-                    <td>
-                      {row.finalPrice != null
-                        ? Number(row.finalPrice).toFixed(2)
-                        : '-'}
-                    </td>
-                    <td>{row.stockQuantity}</td>
-                    <td>
-                      {row.productId && (
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vendorResults.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.vendorName}</td>
+                      <td>{row.city}</td>
+                      <td>{row.state}</td>
+                      <td>{row.isActive ? 'Active' : 'Inactive'}</td>
+                      <td>
                         <button
                           type="button"
                           className="link-button"
-                          onClick={() => navigate(`/products/${row.productId}`)}
+                          onClick={() => navigate(`/vendors/${row.id}`)}
                         >
-                          View product
+                          View vendor
                         </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="search-panel">
-          <div className="search-panel__header">
-            <h2>Vendor search</h2>
-            <p>Search vendors by name, city, state, and status.</p>
-          </div>
-          <form className="search-form" onSubmit={handleVendorSearch}>
-            <div className="search-form-row">
-              <label className="search-label" htmlFor="vendorQuery">
-                Search term
-              </label>
-              <input
-                id="vendorQuery"
-                type="search"
-                className="input"
-                placeholder="Vendor name or city"
-                value={vendorQuery}
-                onChange={(e) => setVendorQuery(e.target.value)}
-              />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="search-form-row search-form-row--two-column">
-              <div>
-                <label className="search-label" htmlFor="vendorCity">
-                  City
-                </label>
-                <input
-                  id="vendorCity"
-                  type="text"
-                  className="input"
-                  value={vendorCity}
-                  onChange={(e) => setVendorCity(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="search-label" htmlFor="vendorState">
-                  State
-                </label>
-                <input
-                  id="vendorState"
-                  type="text"
-                  className="input"
-                  value={vendorState}
-                  onChange={(e) => setVendorState(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="search-form-row">
-              <label className="search-label" htmlFor="vendorIsActive">
-                Status
-              </label>
-              <select
-                id="vendorIsActive"
-                className="input"
-                value={vendorIsActive}
-                onChange={(e) => setVendorIsActive(e.target.value)}
-              >
-                <option value="true">Active only</option>
-                <option value="false">Inactive only</option>
-                <option value="any">Any</option>
-              </select>
-            </div>
-            <div className="search-form-actions">
-              <button type="submit" className="btn-primary">
-                {vendorLoading ? 'Searching…' : 'Search vendors'}
-              </button>
-              {vendorError && !vendorLoading && (
-                <span className="error-message">{vendorError}</span>
-              )}
-            </div>
-          </form>
-
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>City</th>
-                  <th>State</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendorResults.map((row) => (
-                  <tr key={row.id}>
-                    <td>{row.vendorName}</td>
-                    <td>{row.city}</td>
-                    <td>{row.state}</td>
-                    <td>{row.isActive ? 'Active' : 'Inactive'}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="link-button"
-                        onClick={() => navigate(`/vendors/${row.id}`)}
-                      >
-                        View vendor
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
     </div>
   );
