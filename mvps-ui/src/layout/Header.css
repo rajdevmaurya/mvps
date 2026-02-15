@@ -1,5 +1,5 @@
 /* ============================================================================
-   Header Styles
+   Simplified Header - Echo Healthcare Brand Colors
    ============================================================================ */
 .header {
   position: -webkit-sticky;
@@ -7,164 +7,143 @@
   top: 0;
   width: 100%;
   z-index: var(--z-sticky);
-  box-shadow: var(--shadow-sm);
-}
-
-.top-nav {
-  padding: var(--spacing-1) 0;
   background-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
 }
 
-.nav-container {
+.header-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-left: var(--spacing-4);
-  padding-right: var(--spacing-4);
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-6);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-@media (min-width: 768px) {
-  .nav-container {
-    padding-left: var(--spacing-6);
-    padding-right: var(--spacing-6);
-  }
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--secondary-text-color);
+  font-size: var(--text-2xl);
+  cursor: pointer;
+  padding: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-@media (min-width: 1024px) {
-  .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-left: var(--spacing-8);
-    padding-right: var(--spacing-8);
-  }
+.menu-toggle-btn:hover {
+  background: var(--secondary-text-bg);
+}
+
+.menu-toggle-btn:focus-visible {
+  outline: 2px solid var(--secondary-text-color);
+  outline-offset: 2px;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
   line-height: var(--leading-none);
+  margin-right: auto;
 }
 
 .brand-logo img {
-  max-width: 150px;
+  height: 50px;
+  width: auto;
   display: block;
   transition: opacity var(--transition-fast);
 }
 
+.brand-logo:hover img {
+  opacity: 0.9;
+}
+
 .brand-logo:focus-visible {
-  outline: 2px solid var(--white);
+  outline: 2px solid var(--secondary-text-color);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-.nav-right {
+.header-actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3);
-  margin-left: auto;
+  gap: var(--spacing-4);
 }
 
 .user-greeting {
   color: var(--secondary-text-color);
   font-size: var(--text-sm);
   white-space: nowrap;
+  font-weight: 500;
+  opacity: 0.95;
 }
 
-@media (max-width: 640px) {
-  .user-greeting {
-    display: none;
-  }
-}
-
-.auth-link {
-  background: transparent;
-  border: 1px solid var(--secondary-text-color);
-  color: var(--secondary-text-color);
+.auth-button {
+  background: var(--secondary-text-color);
+  border: none;
+  color: var(--primary-color);
   padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  line-height: var(--leading-normal);
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
   text-decoration: none;
   display: inline-block;
+  min-height: 36px;
 }
 
-.auth-link:hover {
-  background: var(--secondary-text-bg);
+.auth-button:hover {
+  background: var(--primary-light);
+  color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-.auth-link:focus-visible {
-  outline: 2px solid var(--white);
+.auth-button:focus-visible {
+  outline: 2px solid var(--secondary-text-color);
   outline-offset: 2px;
-  background: var(--secondary-text-bg);
 }
 
-.bottom-nav {
-  background-color: var(--primary-dark);
-  height: 100%;
+.auth-button:active {
+  transform: translateY(0);
 }
 
-.primary-menu {
-  list-style: none;
-  display: flex;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-@media (max-width: 767px) {
-  .primary-menu {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header-container {
+    padding: var(--spacing-2) var(--spacing-4);
+    gap: var(--spacing-3);
   }
-}
 
-.primary-menu li {
-  height: 100%;
-}
+  .brand-logo img {
+    height: 40px;
+  }
 
-.primary-menu li a {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 var(--spacing-5);
-  font-size: var(--text-sm);
-  color: var(--secondary-text-color);
-  text-decoration: none;
-  transition: background-color var(--transition-fast);
-  white-space: nowrap;
-}
+  .user-greeting {
+    display: none;
+  }
 
-@media (max-width: 767px) {
-  .primary-menu li a {
-    padding: 0 var(--spacing-3);
+  .auth-button {
+    padding: var(--spacing-2) var(--spacing-3);
     font-size: var(--text-xs);
   }
 }
 
-.primary-menu li a:focus-visible {
-  outline: 2px solid var(--white);
-  outline-offset: -2px;
-}
-
-/* Ensure nav container and items fill the bottom nav height */
-.bottom-nav .nav-container {
-  height: 100%;
-  align-items: stretch;
-}
-
-/* Responsive Logo Sizes */
-@media only screen and (max-width: 992px) {
-  .brand-logo img {
-    height: 56px;
-    object-fit: contain;
+@media (max-width: 480px) {
+  .header-container {
+    padding: var(--spacing-2) var(--spacing-3);
+    gap: var(--spacing-2);
   }
-}
 
-@media only screen and (max-width: 601px) {
   .brand-logo img {
-    height: 48px;
+    height: 36px;
   }
 }

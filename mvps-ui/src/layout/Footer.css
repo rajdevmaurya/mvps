@@ -1,125 +1,45 @@
 /* ============================================================================
-   Footer Styles
+   Simplified Footer - Echo Healthcare
    ============================================================================ */
 .footer {
-  padding: var(--spacing-16) 0 var(--spacing-8);
-  box-shadow: 0 -2px 4px rgb(0 0 0 / 20%);
-  color: var(--white);
-  background-color: var(--secondary-color);
-}
-
-.footer h4 {
-  margin-top: 0;
-  margin-bottom: var(--spacing-8);
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
+  padding: var(--spacing-3) var(--spacing-6);
+  background-color: var(--neutral-100);
+  border-top: 1px solid var(--neutral-200);
+  text-align: center;
 }
 
 .footer p {
-  color: inherit;
-  line-height: var(--leading-relaxed);
+  color: var(--neutral-700);
+  font-size: var(--text-sm);
+  margin: 0;
+  line-height: var(--leading-normal);
 }
 
 .footer a {
-  color: inherit;
-  display: inline-block;
-  padding-bottom: 0.01rem;
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--transition-fast);
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
 }
 
 .footer a:hover {
-  border-bottom-color: var(--white);
+  color: var(--primary-light-hover);
+  text-decoration: underline;
 }
 
 .footer a:focus-visible {
-  outline: 2px solid var(--white);
+  outline: 2px solid var(--primary-600);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-.footer ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer ul li {
-  margin-bottom: var(--spacing-4);
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 calc(var(--spacing-4) * -1);
-}
-
-.col {
-  padding: 0 var(--spacing-4);
-}
-
-.col-3 {
-  flex: 1 1 25%;
-  min-width: 220px;
-}
-
-.social-list {
-  display: flex;
-  gap: var(--spacing-4);
-}
-
-.social-list a,
-.social-list a svg {
-  display: block;
-}
-
-.social-list a {
-  background-color: var(--white);
-  width: 3rem;
-  height: 3rem;
-  color: var(--primary-color);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 1;
-  transition: all var(--transition-base);
-  border: 1px solid var(--white);
-}
-
-.social-list a:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
-  transform: translateY(-2px);
-}
-
-.social-list a:focus-visible {
-  outline: 2px solid var(--white);
-  outline-offset: 2px;
-}
-
-.social-list svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  fill: currentColor;
-}
-
-.footer-bottom {
-  padding-top: var(--spacing-8);
-  border-top: 1px solid rgb(255 255 255 / 40%);
-  text-align: center;
-}
-
-/* Responsive Styles */
-@media only screen and (min-width: 992px) {
-  .footer-bottom {
-    margin-top: var(--spacing-12);
-  }
-}
-
-@media only screen and (max-width: 991px) {
+/* Responsive */
+@media (max-width: 768px) {
   .footer {
-    padding-bottom: 120px;
+    padding: var(--spacing-2) var(--spacing-4);
+  }
+
+  .footer p {
+    font-size: var(--text-xs);
   }
 }

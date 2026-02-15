@@ -184,6 +184,12 @@
   --z-tooltip: 70;
 
   /* ========================================
+     Layout Heights
+     ======================================== */
+  --header-height: 66px;    /* Height of the simplified header */
+  --footer-height: 40px;    /* Height of the simplified footer */
+
+  /* ========================================
      Responsive Breakpoints
      ======================================== */
   --breakpoint-sm: 640px;   /* Mobile landscape */

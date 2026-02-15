@@ -1,64 +1,135 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import MainLayout from './components/MainLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Keep Dashboard and Layout for now (non-section pages)
 import Layout from './layout/Layout';
 import Dashboard from './pages/Dashboard';
-import VendorsPage from './pages/VendorsPage';
-import VendorDetailsPage from './pages/VendorDetailsPage';
-import ProductsPage from './pages/ProductsPage';
-import ProductDetailsPage from './pages/ProductDetailsPage';
-import VendorOrdersPage from './pages/VendorOrdersPage';
-import PricingPage from './pages/PricingPage';
-import InventoryPage from './pages/InventoryPage';
-import OrdersPage from './pages/OrdersPage';
-import OrderCreatePage from './pages/OrderCreatePage';
-import OrderDetailsPage from './pages/OrderDetailsPage';
-import ReportsPage from './pages/ReportsPage';
-import SearchPage from './pages/SearchPage';
-import CustomersPage from './pages/CustomersPage';
-import CustomerDetailsPage from './pages/CustomerDetailsPage';
-import StockHistoryPage from './pages/StockHistoryPage';
 
-import OrderItemDetailsPage from './pages/OrderItemDetailsPage';
-import OrderStatusPage from './pages/OrderStatusPage';
-import OrderPaymentStatusPage from './pages/OrderPaymentStatusPage';
+// Lazy load sections
+const ProductsSection = lazy(() => import('./sections/ProductsSection'));
+const VendorsSection = lazy(() => import('./sections/VendorsSection'));
+const CustomersSection = lazy(() => import('./sections/CustomersSection'));
+const OrdersSection = lazy(() => import('./sections/OrdersSection'));
+const InventorySection = lazy(() => import('./sections/InventorySection'));
+const PricingSection = lazy(() => import('./sections/PricingSection'));
 
-import CategoryDetailsPage from './pages/CategoryDetailsPage';
-import ProductLowestPricePage from './pages/ProductLowestPricePage';
-import MapProductVendorPage from './pages/MapProductVendorPage';
+// Lazy load pages
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const ProductsCursorPage = lazy(() => import('./pages/ProductsCursorPage'));
+const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage'));
+const ProductLowestPricePage = lazy(() => import('./pages/ProductLowestPricePage'));
+const VendorsPage = lazy(() => import('./pages/VendorsPage'));
+const VendorDetailsPage = lazy(() => import('./pages/VendorDetailsPage'));
+const MapProductVendorPage = lazy(() => import('./pages/MapProductVendorPage'));
+const VendorOrdersPage = lazy(() => import('./pages/VendorOrdersPage'));
+const CustomersPage = lazy(() => import('./pages/CustomersPage'));
+const CustomerDetailsPage = lazy(() => import('./pages/CustomerDetailsPage'));
+const OrdersPage = lazy(() => import('./pages/OrdersPage'));
+const OrderCreatePage = lazy(() => import('./pages/OrderCreatePage'));
+const OrderDetailsPage = lazy(() => import('./pages/OrderDetailsPage'));
+const OrderItemDetailsPage = lazy(() => import('./pages/OrderItemDetailsPage'));
+const OrderStatusPage = lazy(() => import('./pages/OrderStatusPage'));
+const OrderPaymentStatusPage = lazy(() => import('./pages/OrderPaymentStatusPage'));
+const InventoryPage = lazy(() => import('./pages/InventoryPage'));
+const StockHistoryPage = lazy(() => import('./pages/StockHistoryPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const CategoryDetailsPage = lazy(() => import('./pages/CategoryDetailsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+
+const LoadingFallback = () => (
+  <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+);
 
 function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/vendors" element={<VendorsPage />} />
-        <Route path="/vendors/new" element={<VendorDetailsPage />} />
-        <Route path="/vendors/:vendorId" element={<VendorDetailsPage />} />
-        <Route path="/vendor-orders" element={<VendorOrdersPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/new" element={<ProductDetailsPage />} />
-        <Route path="/products/:productId" element={<ProductDetailsPage />} />
-        <Route path="/map-product-vendor" element={<MapProductVendorPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/inventory" element={<InventoryPage />} />
-        <Route path="/stock-history" element={<StockHistoryPage />} />
-        <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/customers/new" element={<CustomerDetailsPage />} />
-        <Route path="/customers/:customerId" element={<CustomerDetailsPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/orders/new" element={<OrderCreatePage />} />
-        <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
-        <Route path="/order-items/:orderItemId" element={<OrderItemDetailsPage />} />
-        <Route path="/orders/:orderId/status" element={<OrderStatusPage />} />
-        <Route path="/orders/:orderId/payment-status" element={<OrderPaymentStatusPage />} />
-        <Route path="/categories/new" element={<CategoryDetailsPage />} />
-        <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
-        <Route path="/products/:productId/lowest-price" element={<ProductLowestPricePage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/search" element={<SearchPage />} />
-      </Route>
-    </Routes>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          {/* Old Layout routes (Dashboard, Reports, Search, Categories) */}
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/categories/new" element={<CategoryDetailsPage />} />
+            <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
+          </Route>
+
+          {/* New MainLayout with Sidebar and nested sections */}
+          <Route path="/" element={<MainLayout />}>
+            {/* Default redirect to products catalog */}
+            <Route index element={<Navigate to="/products/catalog" replace />} />
+
+            {/* Products Section */}
+            <Route path="products" element={<ProductsSection />}>
+              <Route index element={<Navigate to="catalog" replace />} />
+              <Route path="catalog" element={<ProductsPage />} />
+              <Route path="cursor" element={<ProductsCursorPage />} />
+            </Route>
+            {/* Product detail pages (outside section for clean URLs) */}
+            <Route path="products/new" element={<ProductDetailsPage />} />
+            <Route path="products/:productId" element={<ProductDetailsPage />} />
+            <Route path="products/:productId/lowest-price" element={<ProductLowestPricePage />} />
+
+            {/* Vendors Section */}
+            <Route path="vendors" element={<VendorsSection />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<VendorsPage />} />
+              <Route path="products" element={<MapProductVendorPage />} />
+              <Route path="orders" element={<VendorOrdersPage />} />
+            </Route>
+            {/* Vendor detail pages (outside section for clean URLs) */}
+            <Route path="vendors/new" element={<VendorDetailsPage />} />
+            <Route path="vendors/:vendorId" element={<VendorDetailsPage />} />
+
+            {/* Customers Section */}
+            <Route path="customers" element={<CustomersSection />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<CustomersPage />} />
+            </Route>
+            {/* Customer detail pages (outside section for clean URLs) */}
+            <Route path="customers/new" element={<CustomerDetailsPage />} />
+            <Route path="customers/:customerId" element={<CustomerDetailsPage />} />
+
+            {/* Orders Section */}
+            <Route path="orders" element={<OrdersSection />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<OrdersPage />} />
+            </Route>
+            {/* Order detail pages (outside section for clean URLs) */}
+            <Route path="orders/new" element={<OrderCreatePage />} />
+            <Route path="orders/:orderId" element={<OrderDetailsPage />} />
+            <Route path="order-items/:orderItemId" element={<OrderItemDetailsPage />} />
+            <Route path="orders/:orderId/status" element={<OrderStatusPage />} />
+            <Route path="orders/:orderId/payment-status" element={<OrderPaymentStatusPage />} />
+
+            {/* Inventory Section */}
+            <Route path="inventory" element={<InventorySection />}>
+              <Route index element={<Navigate to="stock" replace />} />
+              <Route path="stock" element={<InventoryPage />} />
+            </Route>
+            {/* Inventory detail pages */}
+            <Route path="stock-history" element={<StockHistoryPage />} />
+
+            {/* Pricing Section */}
+            <Route path="pricing" element={<PricingSection />}>
+              <Route index element={<Navigate to="lists" replace />} />
+              <Route path="lists" element={<PricingPage />} />
+            </Route>
+
+            {/* Analytics Page */}
+            <Route path="analytics" element={<AnalyticsPage />} />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/products/catalog" replace />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

@@ -161,7 +161,8 @@ const VendorOrdersPage = () => {
   useEffect(() => {
     async function loadVendors() {
       try {
-        const res = await fetchData('/vendors', { is_active: true, page: 1, limit: 1000 });
+        // Load vendors with maximum allowed limit (100)
+        const res = await fetchData('/vendors', { is_active: true, page: 1, limit: 100 });
         setVendors(res.data || []);
       } catch (e) {
         console.error('Failed to load vendors:', e);

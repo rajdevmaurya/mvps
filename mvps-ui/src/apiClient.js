@@ -1,10 +1,10 @@
+import tokenManager from './auth/tokenManager';
+
 // Default to going through the API gateway so that
 // authentication and token relay work like core-service.
 // From the browser (origin http://127.0.0.1:8082), calls will
 // go to /mvps-api/** on the gateway, which then forwards to mvps-api.
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/mvps-api/v1';
-
-import tokenManager from './auth/tokenManager';
 
 function buildUrl(path, params) {
   const base = API_BASE_URL.replace(/\/$/, '');

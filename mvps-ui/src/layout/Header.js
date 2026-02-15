@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { toggleSidebar } from '../store/slices/uiSlice';
 import logo from '../assets/echo_logo.png';
 import './Header.css';
 
@@ -15,10 +17,11 @@ const navLinks = [
   { path: '/vendor-orders', label: 'Vendor Orders', end: false },
   { path: '/orders', label: 'Orders', end: false },
   { path: '/search', label: 'Search', end: false },
-  { path: '/reports', label: 'Reports', end: false },
+  { path: '/analytics', label: 'Analytics', end: false },
 ];
 
 const Header = () => {
+  const dispatch = useDispatch();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [userName, setUserName] = useState('');
@@ -110,43 +113,34 @@ const Header = () => {
 
   return (
     <header className="header">
-      <nav className="nav-extended transparent">
-        <div className="top-nav">
-          <div className="container nav-container">
-            <Link to="/" className="brand-logo">
-              <img src={logo} alt="MVPS - Echo Healthcare" />
-              <span className="sr-only">MVPS - Echo Healthcare</span>
-            </Link>
-            <div className="nav-right">
-              {isAuthenticated && userName && (
-                <span className="user-greeting">Hi {userName}</span>
-              )}
-              {!checkingAuth && (
-                <button
-                  type="button"
-                  className="auth-link"
-                  onClick={handleAuthClick}
-                >
-                  {isAuthenticated ? 'Logout' : 'Login'}
-                </button>
-              )}
-            </div>
-          </div>
+      <div className="header-container">
+        <button
+          className="menu-toggle-btn"
+          onClick={() => dispatch(toggleSidebar())}
+          aria-label="Toggle sidebar menu"
+          type="button"
+        >
+          ☰
+        </button>
+        <Link to="/" className="brand-logo">
+          <img src={logo} alt="MVPS - Echo Healthcare" />
+          <span className="sr-only">MVPS - Echo Healthcare</span>
+        </Link>
+        <div className="header-actions">
+          {isAuthenticated && userName && (
+            <span className="user-greeting">Hi, {userName}</span>
+          )}
+          {!checkingAuth && (
+            <button
+              type="button"
+              className="auth-button"
+              onClick={handleAuthClick}
+            >
+              {isAuthenticated ? 'Logout' : 'Login'}
+            </button>
+          )}
         </div>
-        <div className="bottom-nav">
-          <div className="container nav-container">
-            <ul className="primary-menu">
-              {navLinks.map(({ path, label, end }) => (
-                <li key={path}>
-                  <NavLink to={path} end={end}>
-                    {label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </nav>
+      </div>
     </header>
   );
 };
