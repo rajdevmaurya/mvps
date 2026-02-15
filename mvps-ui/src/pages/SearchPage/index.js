@@ -136,17 +136,6 @@ const SearchPage = ({ type }) => {
 
   return (
     <div className="page search-page container">
-      <h1 className="page-title">
-        {type === 'products' ? 'Product Search' : type === 'vendors' ? 'Vendor Search' : 'Search'}
-      </h1>
-      <p className="page-subtitle">
-        {type === 'products'
-          ? 'Filter products by name, price range, prescription requirement, and stock.'
-          : type === 'vendors'
-            ? 'Search vendors by name, city, state, and status.'
-            : 'Quickly find products by price and availability, and locate vendors by name or location.'}
-      </p>
-
       <div className="search-grid">
         {showProducts && (
           <section className="search-panel">
