@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Sidebar from '../Sidebar';
+import Breadcrumb from '../Breadcrumb';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
 import { toggleSidebar } from '../../store/slices/uiSlice';
@@ -40,6 +41,7 @@ const MainLayout = () => {
           )}
           <main className="app-main">
             <div className="content-wrapper">
+              <Breadcrumb />
               <Outlet />
             </div>
           </main>
