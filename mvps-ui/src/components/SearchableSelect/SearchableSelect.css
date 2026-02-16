@@ -1,0 +1,104 @@
+/* SearchableSelect Component */
+.searchable-select {
+  position: relative;
+  display: inline-block;
+  min-width: 140px;
+}
+
+.searchable-select--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Trigger button – mirrors the native .input styling */
+.searchable-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  gap: var(--spacing-2, 0.5rem);
+  background: var(--bg-primary, #fff);
+}
+
+.searchable-select__value {
+  flex: 1 1 0%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchable-select__placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.searchable-select__arrow {
+  flex-shrink: 0;
+  font-size: 0.65em;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Dropdown panel */
+.searchable-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: var(--z-dropdown, 50);
+  margin-top: 2px;
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-md, 0.375rem);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,.1));
+  min-width: 200px;
+}
+
+.searchable-select__search {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  border: none;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.searchable-select__search:focus {
+  border-bottom-color: var(--color-primary, #3b82f6);
+}
+
+/* Option list */
+.searchable-select__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-1, 0.25rem) 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.searchable-select__item {
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchable-select__item:hover {
+  background: var(--bg-hover, #f1f5f9);
+}
+
+.searchable-select__item--selected {
+  background: var(--color-primary-light, #eff6ff);
+  font-weight: var(--font-medium, 500);
+}
+
+.searchable-select__no-results {
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  color: var(--text-muted, #94a3b8);
+  font-style: italic;
+}

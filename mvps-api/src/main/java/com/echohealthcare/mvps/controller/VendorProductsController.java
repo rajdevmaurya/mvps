@@ -3,6 +3,7 @@ package com.echohealthcare.mvps.controller;
 import com.echohealthcare.mvps.api.VendorProductsApi;
 import com.echohealthcare.mvps.domain.VendorStockMovement;
 import com.echohealthcare.mvps.dto.CursorPageResponse;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import com.echohealthcare.mvps.model.VendorProductCreate;
 import com.echohealthcare.mvps.model.VendorProductUpdate;
 import com.echohealthcare.mvps.model.VendorProductsGet200Response;
@@ -43,7 +44,8 @@ public class VendorProductsController implements VendorProductsApi {
                                                                           @Nullable BigDecimal maxPrice,
                                                                           Integer page,
                                                                           Integer limit) {
-        return ResponseEntity.ok(vendorProductService.getVendorProducts(vendorId, productId, isAvailable, minPrice, maxPrice, page, limit));
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(vendorProductService.getVendorProducts(vendorId, productId, isAvailable, minPrice, maxPrice, validated[0], validated[1]));
     }
 
     /**

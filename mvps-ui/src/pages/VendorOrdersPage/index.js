@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { fetchData, postJson, putJson, deleteJson } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import SearchableSelect from '../../components/SearchableSelect';
 import './VendorOrdersPage.css';
 
 const PAGE_SIZE = 20;
@@ -64,6 +65,16 @@ const VendorOrdersPage = () => {
     return m;
   }, [vendors]);
 
+  const vendorOptions = useMemo(() => {
+    return (vendors || [])
+      .filter((v) => v && (v.vendor_id ?? v.vendorId) != null)
+      .map((v) => {
+        const id = v.vendor_id ?? v.vendorId;
+        const name = v.vendor_name ?? v.vendorName;
+        return { value: String(id), label: name || `Vendor #${id}` };
+      });
+  }, [vendors]);
+
   const formatDate = (value) => {
     if (!value) return '';
     try {
@@ -100,11 +111,6 @@ const VendorOrdersPage = () => {
       const res = await fetchData('/vendor-orders', params);
       const data = res.data || [];
       const pagination = res.pagination;
-
-      // Debug: log first order to see what fields are available
-      if (data.length > 0) {
-        console.log('First vendor order from API:', data[0]);
-      }
 
       const mapped = data
         .map((o) => {
@@ -296,12 +302,7 @@ const VendorOrdersPage = () => {
 
     try {
       setDetailSaving(true);
-      // debug: log payload
-      // eslint-disable-next-line no-console
-      console.log('PUT /vendor-orders/', selectedOrderId, payload);
       const res = await putJson(`/vendor-orders/${selectedOrderId}`, payload);
-      // eslint-disable-next-line no-console
-      console.log('PUT response:', res);
 
       // if server returned updated data, update detail and list immediately
       const updated = res?.data || res;
@@ -380,24 +381,12 @@ const VendorOrdersPage = () => {
 
       <div className="toolbar customers-toolbar">
         <div className="filters-group">
-          <select
-            className="input"
+          <SearchableSelect
+            options={[{ value: '', label: 'All vendors' }, ...vendorOptions]}
             value={filters.vendorId}
-            onChange={(e) => handleFilterChange('vendorId', e.target.value)}
-          >
-            <option value="">All vendors</option>
-            {vendors.map((v) => {
-              if (!v) return null;
-              const id = v.vendor_id ?? v.vendorId;
-              const name = v.vendor_name ?? v.vendorName;
-              if (id == null) return null;
-              return (
-                <option key={id} value={id}>
-                  {name || `Vendor #${id}`}
-                </option>
-              );
-            })}
-          </select>
+            onChange={(val) => handleFilterChange('vendorId', val)}
+            placeholder="All vendors"
+          />
 
           <select
             className="input"
@@ -451,24 +440,12 @@ const VendorOrdersPage = () => {
             <div>
               <label>
                 Vendor
-                <select
-                  className="input"
+                <SearchableSelect
+                  options={vendorOptions}
                   value={newOrder.vendorId}
-                  onChange={(e) => handleNewOrderFieldChange('vendorId', e.target.value)}
-                >
-                  <option value="">Select vendor</option>
-                  {vendors.map((v) => {
-                    if (!v) return null;
-                    const id = v.vendor_id ?? v.vendorId;
-                    const name = v.vendor_name ?? v.vendorName;
-                    if (id == null) return null;
-                    return (
-                      <option key={id} value={id}>
-                        {name || `Vendor #${id}`}
-                      </option>
-                    );
-                  })}
-                </select>
+                  onChange={(val) => handleNewOrderFieldChange('vendorId', val)}
+                  placeholder="Select vendor"
+                />
               </label>
             </div>
             <div>
@@ -591,24 +568,12 @@ const VendorOrdersPage = () => {
                   <div>
                     <label>
                       Vendor
-                      <select
-                        className="input"
+                      <SearchableSelect
+                        options={vendorOptions}
                         value={newOrder.vendorId}
-                        onChange={(e) => handleNewOrderFieldChange('vendorId', e.target.value)}
-                      >
-                        <option value="">Select vendor</option>
-                        {vendors.map((v) => {
-                          if (!v) return null;
-                          const id = v.vendor_id ?? v.vendorId;
-                          const name = v.vendor_name ?? v.vendorName;
-                          if (id == null) return null;
-                          return (
-                            <option key={id} value={id}>
-                              {name || `Vendor #${id}`}
-                            </option>
-                          );
-                        })}
-                      </select>
+                        onChange={(val) => handleNewOrderFieldChange('vendorId', val)}
+                        placeholder="Select vendor"
+                      />
                     </label>
                   </div>
                   <div>

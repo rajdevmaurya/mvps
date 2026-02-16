@@ -60,14 +60,12 @@ const Sidebar = () => {
       items: [{ label: 'Orders', path: '/orders/list' }],
     },
     {
-      title: 'Inventory',
+      title: 'Inventory & Pricing',
       icon: '📊',
-      items: [{ label: 'Stock Levels', path: '/inventory/stock' }],
-    },
-    {
-      title: 'Pricing',
-      icon: '💰',
-      items: [{ label: 'Price Lists', path: '/pricing/lists' }],
+      items: [
+        { label: 'Stock Levels', path: '/inventory/stock' },
+        { label: 'Price Lists', path: '/pricing/lists' },
+      ],
     },
   ];
 

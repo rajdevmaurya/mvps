@@ -303,7 +303,7 @@ const OrderDetailsPage = () => {
                         key={
                           item.order_item_id ??
                           item.orderItemId ??
-                          `${item.product_id ?? item.productId}-$${
+                          `${item.product_id ?? item.productId}-${
                             item.vendor_id ?? item.vendorId
                           }`
                         }

@@ -2,6 +2,7 @@ package com.echohealthcare.mvps.controller;
 
 import com.echohealthcare.mvps.api.VendorOrdersApi;
 import com.echohealthcare.mvps.model.VendorOrderCreate;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import com.echohealthcare.mvps.model.VendorOrderUpdate;
 import com.echohealthcare.mvps.model.VendorOrdersGet200Response;
 import com.echohealthcare.mvps.model.VendorOrdersPost201Response;
@@ -34,7 +35,8 @@ public class VendorOrdersController implements VendorOrdersApi {
                                                                       @Nullable LocalDate toDate,
                                                                       Integer page,
                                                                       Integer limit) {
-        return ResponseEntity.ok(vendorOrderService.getVendorOrders(vendorId, status, fromDate, toDate, page, limit));
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(vendorOrderService.getVendorOrders(vendorId, status, fromDate, toDate, validated[0], validated[1]));
     }
 
     @Override

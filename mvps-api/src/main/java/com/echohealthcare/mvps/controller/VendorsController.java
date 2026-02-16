@@ -5,6 +5,7 @@ import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.VendorService;
 import com.echohealthcare.mvps.service.AnalyticsService;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -31,7 +32,8 @@ public class VendorsController implements VendorsApi {
                                                             @Nullable String state,
                                                             Integer page,
                                                             Integer limit) {
-        return ResponseEntity.ok(vendorService.getVendors(isActive, city, state, page, limit));
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(vendorService.getVendors(isActive, city, state, validated[0], validated[1]));
     }
 
     /**

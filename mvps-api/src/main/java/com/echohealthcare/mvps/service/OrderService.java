@@ -181,6 +181,22 @@ public class OrderService {
 
             totalAmount = totalAmount.add(lineTotal);
 
+            // Accumulate discount: difference between cost price and discounted unit price
+            BigDecimal discountPct = vendorProduct.getDiscountPercentage();
+            if (discountPct != null && discountPct.compareTo(BigDecimal.ZERO) > 0
+                    && vendorProduct.getCostPrice() != null) {
+                BigDecimal fullPrice = vendorProduct.getCostPrice().multiply(BigDecimal.valueOf(quantity));
+                totalDiscount = totalDiscount.add(fullPrice.subtract(lineTotal));
+            }
+
+            // Accumulate tax per item
+            BigDecimal taxPct = item.getTaxPercentage();
+            if (taxPct != null && taxPct.compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal itemTax = lineTotal.multiply(taxPct)
+                        .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+                totalTax = totalTax.add(itemTax);
+            }
+
             items.add(item);
         }
 
@@ -446,8 +462,8 @@ public class OrderService {
             return vp.getCostPrice();
         }
         BigDecimal hundred = BigDecimal.valueOf(100);
-        BigDecimal factor = hundred.subtract(discount).divide(hundred);
-        return vp.getCostPrice().multiply(factor);
+        BigDecimal factor = hundred.subtract(discount).divide(hundred, 10, java.math.RoundingMode.HALF_UP);
+        return vp.getCostPrice().multiply(factor).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
     private String generateOrderNumber() {

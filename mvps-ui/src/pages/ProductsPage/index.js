@@ -234,7 +234,7 @@ const ProductsPage = () => {
                 <td>{row.category}</td>
                 <td>{row.manufacturer}</td>
                 <td>{row.prescriptionRequired ? 'Yes' : 'No'}</td>
-                <td>{row.lowest ? row.lowest.finalPrice.toFixed(2) : '-'}</td>
+                <td>{row.lowest && row.lowest.finalPrice != null ? row.lowest.finalPrice.toFixed(2) : '-'}</td>
                 <td>{row.lowest ? row.lowest.vendorName : '-'}</td>
                 <td>
                   <button

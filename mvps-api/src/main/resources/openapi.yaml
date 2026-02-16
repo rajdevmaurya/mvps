@@ -2503,6 +2503,10 @@ components:
         vendor_id:
           type: integer
           example: 1
+        vendor_name:
+          type: string
+          example: "Pharma Solutions"
+          description: Name of the vendor (read-only, populated from vendor record)
         product_id:
           type: integer
           example: 1

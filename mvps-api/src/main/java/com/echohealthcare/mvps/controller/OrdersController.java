@@ -4,6 +4,7 @@ import com.echohealthcare.mvps.api.OrdersApi;
 import com.echohealthcare.mvps.dto.CursorPageResponse;
 import com.echohealthcare.mvps.model.*;
 import com.echohealthcare.mvps.service.OrderService;
+import com.echohealthcare.mvps.util.PaginationUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -33,7 +34,8 @@ public class OrdersController implements OrdersApi {
                                                           @Nullable LocalDate toDate,
                                                           Integer page,
                                                           Integer limit) {
-        return ResponseEntity.ok(orderService.getOrders(customerId, orderStatus, paymentStatus, orderType, fromDate, toDate, page, limit));
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(orderService.getOrders(customerId, orderStatus, paymentStatus, orderType, fromDate, toDate, validated[0], validated[1]));
     }
 
     /**

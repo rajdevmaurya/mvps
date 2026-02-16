@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setItems,
@@ -6,7 +6,10 @@ import {
   setError,
 } from '../../store/slices/inventorySlice';
 import { fetchData, patchJson } from '../../apiClient';
+import Pagination from '../../components/Pagination';
 import './InventoryPage.css';
+
+const PAGE_SIZE = 10;
 
 const InventoryPage = () => {
   const dispatch = useDispatch();
@@ -24,6 +27,26 @@ const InventoryPage = () => {
   const [serverStockHistory, setServerStockHistory] = useState([]);
   const [serverHistoryLoading, setServerHistoryLoading] = useState(false);
   const [serverHistoryError, setServerHistoryError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+
+  const filteredRows = useMemo(() => {
+    if (!searchTerm.trim()) return rows;
+    const term = searchTerm.trim().toLowerCase();
+    return rows.filter((r) => r.productName && r.productName.toLowerCase().includes(term));
+  }, [rows, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+
+  const paginatedRows = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredRows.slice(start, start + PAGE_SIZE);
+  }, [filteredRows, page]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   useEffect(() => {
     async function loadInventory() {
@@ -129,6 +152,7 @@ const InventoryPage = () => {
 
           return {
             vendorProductId,
+            vendorId,
             vendorName,
             vendorSku,
             stockQuantity,
@@ -155,6 +179,7 @@ const InventoryPage = () => {
             rawList.forEach((h) => {
               allHistory.push({
                 vendorProductId: v.vendorProductId,
+                vendorId: v.vendorId,
                 vendorName: v.vendorName ?? `Vendor #${v.vendorProductId}`,
                 vendorSku: v.vendorSku,
                 previousQuantity: h.previous_quantity ?? h.previousQuantity ?? null,
@@ -294,6 +319,16 @@ const InventoryPage = () => {
         Track available stock across vendors and identify high-demand items.
       </p>
 
+      <div className="inventory-search">
+        <input
+          type="text"
+          className="input"
+          placeholder="Search by product name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <div className="table-wrapper">
         {loading && <p>Loading inventory...</p>}
         {error && !loading && <p className="error-message">{error}</p>}
@@ -309,7 +344,7 @@ const InventoryPage = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {paginatedRows.map((row) => (
               <tr key={row.productId}>
                 <td>{row.productName}</td>
                 <td>{row.totalStockAllVendors}</td>
@@ -338,6 +373,15 @@ const InventoryPage = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={filteredRows.length}
+        pageSize={PAGE_SIZE}
+        entityLabel="products"
+        onPageChange={setPage}
+      />
 
       {stockHistory.length > 0 && (
         <section className="inventory-history">
@@ -396,7 +440,7 @@ const InventoryPage = () => {
                   <tbody>
                     {vendorStocks.map((v) => (
                       <tr key={v.vendorProductId}>
-                        <td>{v.vendorName}</td>
+                        <td>{v.vendorName}{v.vendorId != null ? ` (${v.vendorId})` : ''}</td>
                         <td>{v.vendorSku}</td>
                         <td>{v.stockQuantity}</td>
                         <td>
@@ -439,13 +483,13 @@ const InventoryPage = () => {
                   !serverHistoryError &&
                   serverStockHistory.length > 0 && (
                     <ul className="inventory-modal-history-list">
-                      {serverStockHistory.map((h, idx) => (
+                      {serverStockHistory.slice(0, 3).map((h, idx) => (
                         <li key={`${h.vendorProductId}-${idx}`}>
                           <div className="inventory-modal-history-entry">
                             <div className="inventory-modal-history-meta">
                               <span className="inventory-modal-history-vendor">
                                 {h.vendorName}
-                                {h.vendorSku ? ` (${h.vendorSku})` : ''}
+                                {h.vendorId != null ? ` (${h.vendorId})` : ''}
                               </span>
                               <span className="inventory-modal-history-timestamp">
                                 {h.changedAt

@@ -6,6 +6,9 @@ import tokenManager from './auth/tokenManager';
 // go to /mvps-api/** on the gateway, which then forwards to mvps-api.
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/mvps-api/v1';
 
+// Singleton promise to prevent concurrent token refresh attempts
+let refreshPromise = null;
+
 function buildUrl(path, params) {
   const base = API_BASE_URL.replace(/\/$/, '');
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -25,58 +28,78 @@ function buildUrl(path, params) {
   return url.toString();
 }
 
-export async function fetchData(path, params) {
-  const url = buildUrl(path, params);
-  let response = await fetch(url, {
-    headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
-  });
+function authHeaders() {
+  const token = tokenManager.getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+/**
+ * Refresh the access token, coalescing concurrent calls into a single request.
+ */
+async function refreshToken() {
+  if (!refreshPromise) {
+    refreshPromise = tokenManager.refresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+function redirectToLogin() {
+  if (typeof window !== 'undefined') {
+    window.location.href = '/oauth2/authorization/gateway';
+  }
+}
+
+/**
+ * Execute a fetch request with automatic 401 retry (token refresh).
+ */
+async function fetchWithAuth(url, options = {}) {
+  const headers = { ...authHeaders(), ...(options.headers || {}) };
+  let response = await fetch(url, { ...options, headers });
 
   if (response.status === 401) {
-    // try refresh once
     try {
-      await tokenManager.refresh();
-      response = await fetch(url, {
-        headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
-      });
-    } catch (e) {
-      // refresh failed - fall through to existing 401 handling
+      await refreshToken();
+      const retryHeaders = { ...authHeaders(), ...(options.headers || {}) };
+      response = await fetch(url, { ...options, headers: retryHeaders });
+    } catch {
+      // refresh failed - fall through to 401 handling below
     }
   }
 
+  return response;
+}
+
+export async function fetchData(path, params) {
+  const url = buildUrl(path, params);
+  const response = await fetchWithAuth(url);
+
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== 'undefined') {
-      // Treat 401 as "not logged in" and start login flow via gateway
-      window.location.href = '/oauth2/authorization/gateway';
+    if (response.status === 401) {
+      redirectToLogin();
     }
     throw new Error(`API request failed with status ${response.status}`);
   }
 
   const json = await response.json();
-
-  // Most endpoints wrap payload in { success, data, pagination? }
-  if (json && Object.prototype.hasOwnProperty.call(json, 'data')) {
-    return json;
-  }
-
   return json;
 }
 
 export async function postJson(path, body) {
   const url = buildUrl(path);
-  const response = await fetch(url, {
+  const response = await fetchWithAuth(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== 'undefined') {
-      window.location.href = '/oauth2/authorization/gateway';
+    if (response.status === 401) {
+      redirectToLogin();
     }
-    const text = await response.text();
+    let text = '';
+    try { text = await response.text(); } catch { /* ignore */ }
     throw new Error(
       `API POST failed with status ${response.status}: ${text || 'Unknown error'}`,
     );
@@ -88,20 +111,18 @@ export async function postJson(path, body) {
 
 export async function putJson(path, body) {
   const url = buildUrl(path);
-  const response = await fetch(url, {
+  const response = await fetchWithAuth(url, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== 'undefined') {
-      window.location.href = '/oauth2/authorization/gateway';
+    if (response.status === 401) {
+      redirectToLogin();
     }
-    const text = await response.text();
+    let text = '';
+    try { text = await response.text(); } catch { /* ignore */ }
     throw new Error(
       `API PUT failed with status ${response.status}: ${text || 'Unknown error'}`,
     );
@@ -117,20 +138,18 @@ export async function putJson(path, body) {
 
 export async function patchJson(path, body) {
   const url = buildUrl(path);
-  const response = await fetch(url, {
+  const response = await fetchWithAuth(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : {}),
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== 'undefined') {
-      window.location.href = '/oauth2/authorization/gateway';
+    if (response.status === 401) {
+      redirectToLogin();
     }
-    const text = await response.text();
+    let text = '';
+    try { text = await response.text(); } catch { /* ignore */ }
     throw new Error(
       `API PATCH failed with status ${response.status}: ${text || 'Unknown error'}`,
     );
@@ -145,16 +164,16 @@ export async function patchJson(path, body) {
 
 export async function deleteJson(path) {
   const url = buildUrl(path);
-  const response = await fetch(url, {
+  const response = await fetchWithAuth(url, {
     method: 'DELETE',
-    headers: tokenManager.getAccessToken() ? { Authorization: `Bearer ${tokenManager.getAccessToken()}` } : undefined,
   });
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== 'undefined') {
-      window.location.href = '/oauth2/authorization/gateway';
+    if (response.status === 401) {
+      redirectToLogin();
     }
-    const text = await response.text();
+    let text = '';
+    try { text = await response.text(); } catch { /* ignore */ }
     throw new Error(
       `API DELETE failed with status ${response.status}: ${text || 'Unknown error'}`,
     );

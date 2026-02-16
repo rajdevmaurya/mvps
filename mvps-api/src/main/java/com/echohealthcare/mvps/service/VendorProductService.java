@@ -374,6 +374,7 @@ public class VendorProductService {
         com.echohealthcare.mvps.model.VendorProduct model = new com.echohealthcare.mvps.model.VendorProduct();
         model.vendorProductId(entity.getId());
         model.vendorId(entity.getVendor() != null ? entity.getVendor().getId() : null);
+        model.vendorName(entity.getVendor() != null ? entity.getVendor().getName() : null);
         model.productId(entity.getProduct() != null ? entity.getProduct().getId() : null);
         model.vendorSku(entity.getVendorSku());
         model.costPrice(entity.getCostPrice());
@@ -416,8 +417,11 @@ public class VendorProductService {
             return null;
         }
         BigDecimal discount = entity.getDiscountPercentage() != null ? entity.getDiscountPercentage() : BigDecimal.ZERO;
+        if (discount.compareTo(BigDecimal.ZERO) <= 0) {
+            return entity.getCostPrice();
+        }
         BigDecimal hundred = new BigDecimal("100");
-        BigDecimal multiplier = BigDecimal.ONE.subtract(discount.divide(hundred));
-        return entity.getCostPrice().multiply(multiplier);
+        BigDecimal multiplier = BigDecimal.ONE.subtract(discount.divide(hundred, 10, java.math.RoundingMode.HALF_UP));
+        return entity.getCostPrice().multiply(multiplier).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

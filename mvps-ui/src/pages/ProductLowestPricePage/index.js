@@ -124,9 +124,9 @@ const ProductLowestPricePage = () => {
                   </thead>
                   <tbody>
                     {allVendorPrices.map((vp, index) => (
-                      <tr key={index}>
+                      <tr key={vp.vendorName ? `${vp.vendorName}-${index}` : index}>
                         <td>{vp.vendorName}</td>
-                        <td>₹{parseFloat(vp.vendorPrice).toFixed(2)}</td>
+                        <td>{vp.vendorPrice != null ? `₹${parseFloat(vp.vendorPrice).toFixed(2)}` : '-'}</td>
                         <td>{vp.stock}</td>
                         <td>{vp.minOrderQty}</td>
                         <td>
