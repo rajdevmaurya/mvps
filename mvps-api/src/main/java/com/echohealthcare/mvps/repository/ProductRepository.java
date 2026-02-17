@@ -8,8 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
+
+    Optional<Product> findByBarcode(String barcode);
 
     @Query("select p from Product p " +
            "where (:categoryId is null or p.category.id = :categoryId) " +

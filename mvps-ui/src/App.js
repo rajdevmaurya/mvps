@@ -35,6 +35,7 @@ const PricingPage = lazy(() => import('./pages/PricingPage'));
 const CategoryDetailsPage = lazy(() => import('./pages/CategoryDetailsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const ScannerPage = lazy(() => import('./pages/ScannerPage'));
 
 const LoadingFallback = () => (
   <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
@@ -118,6 +119,9 @@ function App() {
             {/* Categories */}
             <Route path="categories/new" element={<CategoryDetailsPage />} />
             <Route path="categories/:categoryId" element={<CategoryDetailsPage />} />
+
+            {/* Scanner (barcode) */}
+            <Route path="scanner" element={<ScannerPage />} />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/products/catalog" replace />} />

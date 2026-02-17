@@ -32,6 +32,9 @@ public class Product {
     @Column(name = "hsn_code", length = 20)
     private String hsnCode;
 
+    @Column(name = "barcode", length = 50)
+    private String barcode;
+
     @Column(name = "unit_of_measure", length = 50)
     private String unitOfMeasure;
 
@@ -113,6 +116,14 @@ public class Product {
 
     public void setHsnCode(String hsnCode) {
         this.hsnCode = hsnCode;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public String getUnitOfMeasure() {

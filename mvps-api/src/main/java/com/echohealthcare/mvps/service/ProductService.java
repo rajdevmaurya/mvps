@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class ProductService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ProductService.class);
+
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
 
@@ -106,6 +108,22 @@ public class ProductService {
             CursorPaginationUtils.encodeCursor(nextCursorValue),
             hasNext
         );
+    }
+
+    public ProductsProductIdGet200Response getProductByBarcode(String barcode) {
+        log.info("[ProductService] findByBarcode('{}') — querying database...", barcode);
+        com.echohealthcare.mvps.domain.Product product = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> {
+                    log.warn("[ProductService] No product found for barcode: '{}'", barcode);
+                    return new ResourceNotFoundException("Product not found for barcode: " + barcode);
+                });
+        log.info("[ProductService] Found product: id={}, name='{}', barcode='{}'",
+                product.getId(), product.getName(), product.getBarcode());
+
+        ProductsProductIdGet200Response response = new ProductsProductIdGet200Response();
+        response.setSuccess(true);
+        response.setData(mapToModel(product));
+        return response;
     }
 
     public ProductsPost201Response createProduct(ProductCreate request) {

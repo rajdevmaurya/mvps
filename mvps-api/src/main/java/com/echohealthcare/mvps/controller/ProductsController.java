@@ -20,6 +20,8 @@ import org.springframework.lang.Nullable;
 @RestController
 public class ProductsController implements ProductsApi {
 
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ProductsController.class);
+
 	private final ProductService productService;
 	private final VendorProductService vendorProductService;
 
@@ -71,6 +73,21 @@ public class ProductsController implements ProductsApi {
 		@PathVariable("productId") Integer productId) {
 		VendorProductsGet200Response response = vendorProductService.getVendorProducts(
 			null, productId, true, null, null, 1, 100);
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * Look up a product by its barcode value (EAN, UPC, etc.).
+	 * Returns the full product details matching the scanned barcode.
+	 */
+	@org.springframework.web.bind.annotation.GetMapping("/products/barcode/{code}")
+	public ResponseEntity<ProductsProductIdGet200Response> getProductByBarcode(@PathVariable("code") String code) {
+		String trimmedCode = code != null ? code.trim() : code;
+		log.info(">>> /products/barcode/'{}' — received barcode lookup request", trimmedCode);
+		ProductsProductIdGet200Response response = productService.getProductByBarcode(trimmedCode);
+		log.info("<<< /products/barcode/{} — success: {}, productName: {}", code,
+				response.getSuccess(),
+				response.getData() != null ? response.getData().getProductName() : "null");
 		return ResponseEntity.ok(response);
 	}
 
