@@ -75,6 +75,12 @@ public class CustomersController implements CustomersApi {
             cursor, size, customerType, isActive, city, search));
     }
 
+    @GetMapping("/customers/phone/{phone}")
+    public ResponseEntity<CustomersCustomerIdGet200Response> getCustomerByPhone(@PathVariable("phone") String phone) {
+        String trimmed = phone != null ? phone.trim() : phone;
+        return ResponseEntity.ok(customerService.getCustomerByPhone(trimmed));
+    }
+
     @Override
     public ResponseEntity<CustomersPost201Response> customersPost(@Valid @RequestBody CustomerCreate customerCreate) {
         return ResponseEntity.status(201).body(customerService.createCustomer(customerCreate));

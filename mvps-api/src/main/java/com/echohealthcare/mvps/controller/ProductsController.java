@@ -81,13 +81,11 @@ public class ProductsController implements ProductsApi {
 	 * Returns the full product details matching the scanned barcode.
 	 */
 	@org.springframework.web.bind.annotation.GetMapping("/products/barcode/{code}")
-	public ResponseEntity<ProductsProductIdGet200Response> getProductByBarcode(@PathVariable("code") String code) {
+	public ResponseEntity<java.util.Map<String, Object>> getProductByBarcode(@PathVariable("code") String code) {
 		String trimmedCode = code != null ? code.trim() : code;
 		log.info(">>> /products/barcode/'{}' — received barcode lookup request", trimmedCode);
-		ProductsProductIdGet200Response response = productService.getProductByBarcode(trimmedCode);
-		log.info("<<< /products/barcode/{} — success: {}, productName: {}", code,
-				response.getSuccess(),
-				response.getData() != null ? response.getData().getProductName() : "null");
+		java.util.Map<String, Object> response = productService.getProductByBarcodeWithPricing(trimmedCode);
+		log.info("<<< /products/barcode/{} — response: {}", code, response.get("success"));
 		return ResponseEntity.ok(response);
 	}
 

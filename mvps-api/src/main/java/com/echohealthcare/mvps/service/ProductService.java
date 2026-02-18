@@ -30,11 +30,14 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
+    private final com.echohealthcare.mvps.repository.VendorProductRepository vendorProductRepository;
 
     public ProductService(ProductRepository productRepository,
-                          ProductCategoryRepository categoryRepository) {
+                          ProductCategoryRepository categoryRepository,
+                          com.echohealthcare.mvps.repository.VendorProductRepository vendorProductRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.vendorProductRepository = vendorProductRepository;
     }
 
     public ProductsGet200Response getProducts(Integer categoryId,
@@ -123,6 +126,50 @@ public class ProductService {
         ProductsProductIdGet200Response response = new ProductsProductIdGet200Response();
         response.setSuccess(true);
         response.setData(mapToModel(product));
+        return response;
+    }
+
+    public java.util.Map<String, Object> getProductByBarcodeWithPricing(String barcode) {
+        log.info("[ProductService] findByBarcodeWithPricing('{}') — querying...", barcode);
+        com.echohealthcare.mvps.domain.Product product = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> {
+                    log.warn("[ProductService] No product found for barcode: '{}'", barcode);
+                    return new ResourceNotFoundException("Product not found for barcode: " + barcode);
+                });
+
+        // Find the cheapest available vendor product for pricing
+        java.util.List<com.echohealthcare.mvps.domain.VendorProduct> vendorProducts =
+                vendorProductRepository.findByProductIdOrderByFinalPriceAsc(product.getId());
+
+        java.util.Map<String, Object> productData = new java.util.LinkedHashMap<>();
+        productData.put("productId", product.getId());
+        productData.put("productName", product.getName());
+        productData.put("genericName", product.getGenericName());
+        productData.put("manufacturer", product.getManufacturer());
+        productData.put("hsnCode", product.getHsnCode());
+        productData.put("unitOfMeasure", product.getUnitOfMeasure());
+        productData.put("prescriptionRequired", product.getPrescriptionRequired());
+
+        if (!vendorProducts.isEmpty()) {
+            com.echohealthcare.mvps.domain.VendorProduct cheapest = vendorProducts.get(0);
+            productData.put("price", cheapest.getFinalPrice() != null ? cheapest.getFinalPrice() : cheapest.getCostPrice());
+            productData.put("mrp", cheapest.getMrp());
+            productData.put("costPrice", cheapest.getCostPrice());
+            productData.put("discountPercentage", cheapest.getDiscountPercentage());
+            productData.put("vendorProductId", cheapest.getId());
+            productData.put("stockQuantity", cheapest.getStockQuantity());
+            log.info("[ProductService] Cheapest vendor product: id={}, price={}, discount={}%",
+                    cheapest.getId(), cheapest.getFinalPrice(), cheapest.getDiscountPercentage());
+        } else {
+            productData.put("price", null);
+            productData.put("mrp", null);
+            productData.put("discountPercentage", 0);
+            log.warn("[ProductService] No vendor products found for product id={}", product.getId());
+        }
+
+        java.util.Map<String, Object> response = new java.util.LinkedHashMap<>();
+        response.put("success", true);
+        response.put("data", productData);
         return response;
     }
 

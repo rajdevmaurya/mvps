@@ -9,8 +9,12 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface VendorProductRepository extends JpaRepository<VendorProduct, Integer> {
+
+    @Query("SELECT vp FROM VendorProduct vp WHERE vp.product.id = :productId AND vp.available = true ORDER BY vp.finalPrice ASC")
+    List<VendorProduct> findByProductIdOrderByFinalPriceAsc(@Param("productId") Integer productId);
 
     @Query("select vp from VendorProduct vp " +
            "where (:vendorId is null or vp.vendor.id = :vendorId) " +

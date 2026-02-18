@@ -35,7 +35,19 @@ public class OrdersController implements OrdersApi {
                                                           Integer page,
                                                           Integer limit) {
         int[] validated = PaginationUtils.validatePagination(page, limit);
-        return ResponseEntity.ok(orderService.getOrders(customerId, orderStatus, paymentStatus, orderType, fromDate, toDate, validated[0], validated[1]));
+        return ResponseEntity.ok(orderService.getOrders(customerId, orderStatus, paymentStatus, orderType, fromDate, toDate, null, validated[0], validated[1]));
+    }
+
+    @GetMapping("/orders/search")
+    public ResponseEntity<OrdersGet200Response> ordersSearch(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String orderStatus,
+            @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) String orderType,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer limit) {
+        int[] validated = PaginationUtils.validatePagination(page, limit);
+        return ResponseEntity.ok(orderService.getOrders(null, orderStatus, paymentStatus, orderType, null, null, search, validated[0], validated[1]));
     }
 
     /**

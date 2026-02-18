@@ -5,12 +5,10 @@ import { fetchData, postJson } from '../apiClient';
 const GST_RATE = 18;
 
 function ScannerPage() {
-  // Invoice items: [{ productId, productName, genericName, manufacturer, hsnCode, unitOfMeasure, price, quantity, discountPct, prescriptionRequired }]
   const [items, setItems] = useState([]);
-  const [customerId, setCustomerId] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [customerName, setCustomerName] = useState('');
 
-  // Scanner state
   const [error, setError] = useState(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -33,20 +31,28 @@ function ScannerPage() {
     });
     const afterDiscount = sub - disc;
     const tax = afterDiscount * (GST_RATE / 100);
-    return {
-      subtotal: sub,
-      totalDiscount: disc,
-      taxAmount: tax,
-      grandTotal: afterDiscount + tax,
-    };
+    return { subtotal: sub, totalDiscount: disc, taxAmount: tax, grandTotal: afterDiscount + tax };
   }, [items]);
+
+  // ---- Auto-lookup customer name when mobile number is entered ----
+  const autoLookupCustomer = useCallback(async (phone) => {
+    const trimmed = phone.trim();
+    if (trimmed.length < 10) return;
+    try {
+      const data = await fetchData(`/customers/phone/${encodeURIComponent(trimmed)}`);
+      if (data && data.success && data.data) {
+        setCustomerName(data.data.customerName || '');
+      }
+    } catch (_) {
+      // Not found — user can type name manually
+    }
+  }, []);
 
   // ---- Barcode lookup & add to invoice ----
   const lookupAndAdd = useCallback(async (rawCode) => {
     const code = rawCode.trim();
     if (!code) return;
 
-    // Prevent duplicate rapid lookups for same code
     if (lastLookupRef.current === code) return;
     lastLookupRef.current = code;
     setTimeout(() => { if (lastLookupRef.current === code) lastLookupRef.current = null; }, 2000);
@@ -70,11 +76,12 @@ function ScannerPage() {
             productName: p.productName || 'Unknown',
             genericName: p.genericName || '',
             manufacturer: p.manufacturer || '',
-            hsnCode: p.hsnCode || '',
             unitOfMeasure: p.unitOfMeasure || '',
-            price: 0,
+            price: parseFloat(p.price) || 0,
+            mrp: parseFloat(p.mrp) || 0,
+            discountPct: parseFloat(p.discountPercentage) || 0,
+            vendorProductId: p.vendorProductId || null,
             quantity: 1,
-            discountPct: 0,
             prescriptionRequired: p.prescriptionRequired || false,
           }];
         });
@@ -102,8 +109,7 @@ function ScannerPage() {
   const updateQty = (productId, delta) => {
     setItems(prev => prev.map(i => {
       if (i.productId !== productId) return i;
-      const newQty = Math.max(1, i.quantity + delta);
-      return { ...i, quantity: newQty };
+      return { ...i, quantity: Math.max(1, i.quantity + delta) };
     }));
   };
 
@@ -123,7 +129,7 @@ function ScannerPage() {
 
   const clearAll = () => {
     setItems([]);
-    setCustomerId('');
+    setMobileNumber('');
     setCustomerName('');
     setError(null);
     setOrderResult(null);
@@ -134,14 +140,50 @@ function ScannerPage() {
   // ---- Place order ----
   const placeOrder = async () => {
     if (items.length === 0) { setError('Add at least one product'); return; }
-    if (!customerId) { setError('Please enter Customer ID'); return; }
+    const phone = mobileNumber.trim();
+    if (!phone) { setError('Please enter a mobile number'); return; }
     setOrdering(true);
     setError(null);
     setOrderResult(null);
     try {
+      let customerId;
+
+      // Try to find existing customer by phone
+      try {
+        const custData = await fetchData(`/customers/phone/${encodeURIComponent(phone)}`);
+        if (custData && custData.success && custData.data) {
+          customerId = custData.data.customerId;
+        }
+      } catch (_) {
+        // Customer not found — auto-create
+      }
+
+      // If not found, create a new customer
+      if (!customerId) {
+        const name = customerName.trim() || 'Walk-in Customer';
+        const newCust = await postJson('/customers', {
+          customerName: name,
+          phone: phone,
+          customerType: 'retail',
+          isActive: true,
+        });
+        if (newCust && newCust.success && newCust.data) {
+          customerId = newCust.data.customerId;
+        } else {
+          setError('Failed to create customer');
+          setOrdering(false);
+          return;
+        }
+      }
+
       const payload = {
-        customerId: parseInt(customerId, 10),
-        items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
+        customerId,
+        orderType: 'door_to_door',
+        items: items.map(i => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          ...(i.vendorProductId ? { vendorProductId: i.vendorProductId } : {}),
+        })),
       };
       const res = await postJson('/orders', payload);
       setOrderResult(res);
@@ -152,7 +194,6 @@ function ScannerPage() {
     }
   };
 
-  // ---- Print ----
   const printInvoice = () => window.print();
 
   const doManualLookup = () => {
@@ -167,7 +208,6 @@ function ScannerPage() {
 
   return (
     <>
-      {/* Print styles */}
       <style>{`
         @media print {
           .scanner-col, .scan-history, .action-bar, .manual-lookup, .error-bar, .order-success { display: none !important; }
@@ -181,7 +221,6 @@ function ScannerPage() {
       `}</style>
 
       <div className="pos-page" style={styles.page}>
-        {/* Header */}
         <div style={styles.header}>
           <h2 style={styles.headerTitle}>POS Billing</h2>
           <div style={styles.headerRight}>
@@ -195,14 +234,12 @@ function ScannerPage() {
           <div className="scanner-col" style={styles.scannerCol}>
             <BarcodeScanner onDetected={onDetected} onError={onError} />
 
-            {/* Last scanned */}
             {lastBarcode && (
               <div style={styles.lastBarcode}>
                 Scanned: <strong>{lastBarcode}</strong>
               </div>
             )}
 
-            {/* Manual lookup */}
             <div className="manual-lookup" style={styles.manualLookup}>
               <input
                 value={manualCode}
@@ -216,7 +253,6 @@ function ScannerPage() {
               </button>
             </div>
 
-            {/* Scan history */}
             <div className="scan-history" style={styles.scanHistory}>
               <div style={styles.scanHistoryTitle}>
                 Scan History ({scans.length})
@@ -238,47 +274,56 @@ function ScannerPage() {
 
           {/* ====== RIGHT: Invoice ====== */}
           <div className="invoice-col" style={styles.invoiceCol}>
-            {/* Print-only header */}
             <div className="invoice-header-print" style={styles.printHeader}>
               <h2 style={{ margin: 0, color: '#00372c' }}>Echo Healthcare</h2>
               <div style={{ fontSize: 12, color: '#666' }}>Invoice: {invoiceNo} | Date: {today}</div>
+              {(mobileNumber || customerName) && (
+                <div style={{ fontSize: 12, color: '#333', marginTop: 4 }}>
+                  {customerName && <span>Customer: {customerName}</span>}
+                  {mobileNumber && <span> | Mobile: {mobileNumber}</span>}
+                </div>
+              )}
             </div>
 
             {/* Customer info */}
             <div style={styles.customerRow}>
               <div style={styles.customerField}>
-                <label style={styles.label}>Customer ID</label>
+                <label style={styles.label}>Mobile Number</label>
                 <input
-                  type="number"
-                  value={customerId}
-                  onChange={e => setCustomerId(e.target.value)}
-                  placeholder="ID"
-                  style={styles.custInput}
+                  type="tel"
+                  value={mobileNumber}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setMobileNumber(val);
+                    if (val.trim().length >= 10) autoLookupCustomer(val);
+                  }}
+                  onBlur={() => autoLookupCustomer(mobileNumber)}
+                  placeholder="Enter mobile number"
+                  style={{ ...styles.custInput, width: 180 }}
                 />
               </div>
-              <div style={styles.customerField}>
+              <div style={{ ...styles.customerField, flex: 1 }}>
                 <label style={styles.label}>Customer Name</label>
                 <input
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
-                  placeholder="Name"
-                  style={{ ...styles.custInput, flex: 1 }}
+                  placeholder="Enter customer name"
+                  style={{ ...styles.custInput, width: '100%' }}
                 />
               </div>
             </div>
 
-            {/* Error */}
             {error && <div className="error-bar" style={styles.errorBar}>{error}</div>}
 
-            {/* Invoice table */}
+            {/* Invoice table — NO HSN column */}
             <div style={styles.tableWrap}>
               <table style={styles.table}>
                 <thead>
                   <tr style={styles.tableHead}>
                     <th style={{ ...styles.th, width: 36 }}>#</th>
                     <th style={styles.th}>Product</th>
-                    <th style={{ ...styles.th, width: 80 }}>HSN</th>
-                    <th style={{ ...styles.th, width: 90, textAlign: 'right' }}>Price (₹)</th>
+                    <th style={{ ...styles.th, width: 90, textAlign: 'right' }}>MRP (₹)</th>
+                    <th style={{ ...styles.th, width: 100, textAlign: 'right' }}>Price (₹)</th>
                     <th style={{ ...styles.th, width: 110, textAlign: 'center' }}>Qty</th>
                     <th style={{ ...styles.th, width: 80, textAlign: 'center' }}>Disc %</th>
                     <th style={{ ...styles.th, width: 100, textAlign: 'right' }}>Total (₹)</th>
@@ -301,9 +346,12 @@ function ScannerPage() {
                         <td style={styles.td}>
                           <div style={styles.productName}>{item.productName}</div>
                           {item.genericName && <div style={styles.genericName}>{item.genericName}</div>}
+                          {item.manufacturer && <div style={{ fontSize: 10, color: '#aaa' }}>{item.manufacturer}</div>}
                           {item.prescriptionRequired && <span style={styles.rxBadge}>Rx</span>}
                         </td>
-                        <td style={{ ...styles.td, fontSize: 12, color: '#666' }}>{item.hsnCode}</td>
+                        <td style={{ ...styles.td, textAlign: 'right', fontFamily: 'monospace', color: '#888', fontSize: 12 }}>
+                          {item.mrp > 0 ? item.mrp.toFixed(2) : '—'}
+                        </td>
                         <td style={{ ...styles.td, textAlign: 'right' }}>
                           <input
                             type="number"
@@ -371,7 +419,6 @@ function ScannerPage() {
               </div>
             </div>
 
-            {/* Order success */}
             {orderResult && (
               <div className="order-success" style={styles.orderSuccess}>
                 <strong>Order placed successfully!</strong>
@@ -380,7 +427,6 @@ function ScannerPage() {
               </div>
             )}
 
-            {/* Action buttons */}
             <div className="action-bar" style={styles.actionBar}>
               <button onClick={clearAll} style={styles.clearBtn}>Clear All</button>
               <button onClick={printInvoice} disabled={items.length === 0} style={styles.printBtn}>
@@ -397,7 +443,6 @@ function ScannerPage() {
   );
 }
 
-// ---- Styles ----
 const styles = {
   page: { padding: 16, fontFamily: 'Inter, system-ui, sans-serif', minHeight: '100vh', background: '#f5f6fa' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid #00372c' },
@@ -405,10 +450,7 @@ const styles = {
   headerRight: { display: 'flex', gap: 16, alignItems: 'center' },
   headerDate: { fontSize: 13, color: '#666' },
   headerInvoice: { fontSize: 13, fontFamily: 'monospace', background: '#e8f5e9', padding: '2px 8px', borderRadius: 4, color: '#2e7d32' },
-
   layout: { display: 'flex', gap: 20, alignItems: 'flex-start' },
-
-  // Scanner column
   scannerCol: { width: '38%', minWidth: 340 },
   lastBarcode: { marginTop: 8, padding: '6px 12px', background: '#1a1a2e', color: '#00ff00', fontFamily: 'monospace', fontSize: 16, borderRadius: 6, textAlign: 'center' },
   manualLookup: { display: 'flex', gap: 8, marginTop: 12 },
@@ -421,18 +463,14 @@ const styles = {
   scanHistoryItem: { display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #f0f0f0', fontSize: 12 },
   scanCode: { fontFamily: 'monospace', fontWeight: 600 },
   scanTime: { color: '#999' },
-
-  // Invoice column
   invoiceCol: { flex: 1, background: '#fff', borderRadius: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: 20, minWidth: 500 },
   printHeader: { marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid #00372c', textAlign: 'center' },
-  customerRow: { display: 'flex', gap: 12, marginBottom: 16 },
+  customerRow: { display: 'flex', gap: 16, marginBottom: 16, alignItems: 'flex-end' },
   customerField: { display: 'flex', flexDirection: 'column', gap: 4 },
+  customerInfo: { padding: '8px 14px', background: '#e8f5e9', borderRadius: 8, border: '1px solid #a5d6a7', minWidth: 180 },
   label: { fontSize: 11, fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: 0.5 },
-  custInput: { padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, width: 120 },
-
+  custInput: { padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, width: 180 },
   errorBar: { background: '#fff3f0', color: '#c00', padding: '8px 12px', borderRadius: 6, fontSize: 13, marginBottom: 12, border: '1px solid #ffcdd2' },
-
-  // Table
   tableWrap: { overflowX: 'auto', marginBottom: 0 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   tableHead: { background: '#00372c' },
@@ -444,26 +482,19 @@ const styles = {
   productName: { fontWeight: 600, color: '#222' },
   genericName: { fontSize: 11, color: '#888', marginTop: 2 },
   rxBadge: { display: 'inline-block', fontSize: 10, fontWeight: 700, color: '#c00', background: '#ffebee', padding: '1px 6px', borderRadius: 3, marginTop: 2 },
-
   qtyControls: { display: 'inline-flex', alignItems: 'center', gap: 0, border: '1px solid #ddd', borderRadius: 6, overflow: 'hidden' },
   qtyBtn: { width: 28, height: 28, border: 'none', background: '#f0f0f0', cursor: 'pointer', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   qtyValue: { width: 32, textAlign: 'center', fontWeight: 600, fontSize: 14, fontFamily: 'monospace' },
-
-  priceInput: { width: 70, padding: '4px 6px', border: '1px solid #ddd', borderRadius: 4, textAlign: 'right', fontSize: 13, fontFamily: 'monospace' },
-  discountInput: { width: 50, padding: '4px 6px', border: '1px solid #ddd', borderRadius: 4, textAlign: 'center', fontSize: 13 },
+  priceInput: { width: 75, padding: '4px 6px', border: '1px solid #ddd', borderRadius: 4, textAlign: 'right', fontSize: 13, fontFamily: 'monospace' },
+  discountInput: { width: 55, padding: '4px 6px', border: '1px solid #ddd', borderRadius: 4, textAlign: 'center', fontSize: 13 },
   removeBtn: { background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: 16, padding: 4 },
-
-  // Totals
   totalsBox: { borderTop: '2px solid #e0e0e0', marginTop: 0, padding: '16px 0' },
   totalRow: { display: 'flex', justifyContent: 'space-between', padding: '4px 8px', fontSize: 14 },
   totalValue: { fontFamily: 'monospace', fontWeight: 500 },
   grandTotalRow: { display: 'flex', justifyContent: 'space-between', padding: '10px 8px', fontSize: 20, fontWeight: 700, color: '#00372c', borderTop: '2px solid #00372c', marginTop: 8 },
   grandTotalValue: { fontFamily: 'monospace' },
   itemCount: { textAlign: 'right', fontSize: 12, color: '#888', padding: '4px 8px' },
-
   orderSuccess: { background: '#e8f5e9', color: '#2e7d32', padding: '10px 14px', borderRadius: 6, fontSize: 13, marginTop: 12, border: '1px solid #a5d6a7' },
-
-  // Actions
   actionBar: { display: 'flex', gap: 12, marginTop: 16, justifyContent: 'flex-end' },
   clearBtn: { padding: '10px 20px', border: '1px solid #ddd', borderRadius: 6, background: '#fff', color: '#666', fontWeight: 600, cursor: 'pointer', fontSize: 14 },
   printBtn: { padding: '10px 20px', border: 'none', borderRadius: 6, background: '#1565c0', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: 14 },

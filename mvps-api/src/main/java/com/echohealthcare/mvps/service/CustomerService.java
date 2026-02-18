@@ -107,6 +107,16 @@ public class CustomerService {
         return response;
     }
 
+    public CustomersCustomerIdGet200Response getCustomerByPhone(String phone) {
+        Customer customer = customerRepository.findByPhone(phone)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found for phone: " + phone));
+
+        CustomersCustomerIdGet200Response response = new CustomersCustomerIdGet200Response();
+        response.setSuccess(true);
+        response.setData(mapToModel(customer));
+        return response;
+    }
+
     public CustomersCustomerIdGet200Response getCustomerById(Integer customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
@@ -154,7 +164,7 @@ public class CustomerService {
         LocalDateTime to = toDate != null ? toDate.atTime(23, 59, 59) : null;
 
         // reuse OrderService-style projection via repository search
-        var page = orderRepository.search(customerId, orderStatus, null, null, from, to, Pageable.unpaged());
+        var page = orderRepository.search(customerId, orderStatus, null, null, from, to, null, Pageable.unpaged());
 
         CustomersCustomerIdOrdersGet200Response response = new CustomersCustomerIdOrdersGet200Response();
         response.setSuccess(true);

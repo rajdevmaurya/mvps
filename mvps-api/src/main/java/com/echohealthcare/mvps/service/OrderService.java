@@ -56,13 +56,14 @@ public class OrderService {
                                           String orderType,
                                           LocalDate fromDate,
                                           LocalDate toDate,
+                                          String search,
                                           int page,
                                           int limit) {
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), limit);
         LocalDateTime from = fromDate != null ? fromDate.atStartOfDay() : null;
         LocalDateTime to = toDate != null ? toDate.atTime(23, 59, 59) : null;
 
-        Page<Order> orderPage = orderRepository.search(customerId, orderStatus, paymentStatus, orderType, from, to, pageable);
+        Page<Order> orderPage = orderRepository.search(customerId, orderStatus, paymentStatus, orderType, from, to, search, pageable);
 
         OrdersGet200Response response = new OrdersGet200Response();
         response.setSuccess(true);

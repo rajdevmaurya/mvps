@@ -18,13 +18,18 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
            "and (:paymentStatus is null or o.paymentStatus = :paymentStatus) " +
            "and (:orderType is null or o.orderType = :orderType) " +
            "and (:fromDate is null or o.orderDate >= :fromDate) " +
-           "and (:toDate is null or o.orderDate <= :toDate)")
+           "and (:toDate is null or o.orderDate <= :toDate) " +
+           "and (:search is null or " +
+           "     LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "     LOWER(o.customer.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "     o.customer.phone LIKE CONCAT('%', :search, '%'))")
     Page<Order> search(@Param("customerId") Integer customerId,
                        @Param("orderStatus") String orderStatus,
                        @Param("paymentStatus") String paymentStatus,
                        @Param("orderType") String orderType,
                        @Param("fromDate") LocalDateTime fromDate,
                        @Param("toDate") LocalDateTime toDate,
+                       @Param("search") String search,
                        Pageable pageable);
 
     /**
