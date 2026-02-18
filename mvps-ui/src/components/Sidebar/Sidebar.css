@@ -1,11 +1,15 @@
+/* ============================================================================
+   Sidebar — Light theme with subtle green accents
+   ============================================================================ */
+
 .sidebar {
   width: 260px;
   height: calc(100vh - var(--header-height, 66px));
-  background: #ffffff;
-  border-right: 1px solid var(--border-base);
+  background: #fafcfb;
+  border-right: 1px solid #e8ece9;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
   left: 0;
   top: var(--header-height, 66px);
@@ -16,32 +20,47 @@
   transform: translateX(-100%);
 }
 
+/* Header */
 .sidebar-header {
-  padding: var(--spacing-4);
-  border-bottom: 1px solid var(--border-base);
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #e8ece9;
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 10px;
 }
 
 .sidebar-logo {
-  font-size: var(--text-xl);
+  font-size: 18px;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: #00372c;
   margin: 0;
+  letter-spacing: 1.5px;
 }
 
+/* Nav container */
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-2) 0;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #d0d5d2 transparent;
 }
 
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #d0d5d2;
+  border-radius: 4px;
+}
+
+/* Menu list */
 .sidebar-menu {
   list-style: none;
   margin: 0;
-  padding: 0;
-  margin-bottom: var(--spacing-2);
+  padding: 0 8px;
+  margin-bottom: 4px;
 }
 
 .sidebar-menu li {
@@ -49,136 +68,147 @@
   padding: 0;
 }
 
+/* Menu items (top-level single items like Dashboard) */
 .sidebar-menu-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3);
-  padding: var(--spacing-3) var(--spacing-4);
-  color: var(--text-secondary);
+  gap: 12px;
+  padding: 10px 14px;
+  color: #4b5563;
   text-decoration: none;
-  transition: all 0.2s;
-  font-size: var(--text-sm);
+  transition: all 0.2s ease;
+  font-size: 13.5px;
   font-weight: 500;
-  border-left: 3px solid transparent;
+  border-radius: 8px;
+  margin-bottom: 2px;
 }
 
 .sidebar-menu-item:hover {
-  background: var(--neutral-100);
-  color: var(--primary-dark);
-  border-left-color: var(--primary-light);
+  background: #eef3f0;
+  color: #00372c;
 }
 
 .sidebar-menu-item.active {
-  background: var(--neutral-100);
-  color: var(--primary-dark);
+  background: #e6f2ed;
+  color: #00372c;
   font-weight: 600;
-  border-left-color: var(--primary-light);
 }
 
 .sidebar-menu-icon {
-  font-size: var(--text-lg);
-  width: 24px;
+  font-size: 18px;
+  width: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .sidebar-menu-label {
   flex: 1;
 }
 
-/* Collapsible Section Styles */
+/* Collapsible Section */
 .sidebar-section {
-  margin-bottom: var(--spacing-2);
+  margin-bottom: 2px;
+  padding: 0 8px;
 }
 
 .sidebar-section-header {
   width: 100%;
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: 10px 14px;
   background: transparent;
   border: none;
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  color: #4b5563;
   text-align: left;
-  border-left: 3px solid transparent;
+  border-radius: 8px;
 }
 
 .sidebar-section-header:hover {
-  opacity: 1;
+  background: #eef3f0;
+  color: #00372c;
 }
 
 .sidebar-section-icon {
-  font-size: var(--text-lg);
-  width: 24px;
+  font-size: 18px;
+  width: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .sidebar-section-title {
   flex: 1;
   font-weight: 600;
-  font-size: var(--text-sm);
-  opacity: 0.9;
+  font-size: 13px;
+  color: #374151;
 }
 
 .sidebar-section-arrow {
-  font-size: var(--text-xs);
-  opacity: 0.7;
+  font-size: 10px;
+  color: #9ca3af;
+  transition: transform 0.2s ease;
 }
 
+/* Sub-items */
 .sidebar-section-items {
   display: flex;
   flex-direction: column;
-  padding-left: var(--spacing-6);
+  padding-left: 20px;
+  margin-left: 18px;
+  border-left: 1px solid #e0e5e2;
+  margin-bottom: 4px;
 }
 
 .sidebar-item {
-  padding: var(--spacing-2) var(--spacing-4);
-  color: var(--text-secondary);
+  padding: 8px 14px;
+  color: #6b7280;
   text-decoration: none;
-  transition: all 0.2s;
-  font-size: var(--text-sm);
-  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  border-radius: 6px;
+  margin: 1px 0;
 }
 
 .sidebar-item:hover {
-  background: var(--primary-dark);
-  color: #ffffff;
-  border-left-color: var(--primary-dark);
+  background: #eef3f0;
+  color: #00372c;
 }
 
 .sidebar-item.active {
-  background: var(--neutral-100);
-  color: var(--primary-dark);
+  background: #e6f2ed;
+  color: #00372c;
   font-weight: 600;
-  border-left-color: var(--primary-light);
 }
 
-/* Sidebar Footer & Logout */
+/* Footer & Logout */
 .sidebar-footer {
-  padding: var(--spacing-2) var(--spacing-4) var(--spacing-3);
+  padding: 12px 16px 16px;
   margin-top: auto;
+  border-top: 1px solid #e8ece9;
 }
 
 .sidebar-logout-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2);
-  padding: 6px 14px;
-  background: transparent;
-  color: var(--error-text);
-  border: 1px solid var(--error-border);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 0.3px;
+  width: 100%;
+  justify-content: center;
 }
 
 .sidebar-logout-btn .logout-icon {
@@ -188,21 +218,23 @@
 }
 
 .sidebar-logout-btn:hover {
-  background: var(--error-bg);
-  border-color: var(--error-text);
-  color: var(--error-text);
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #991b1b;
 }
 
 .sidebar-logout-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
+/* Overlay */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 99;
   display: none;
+  backdrop-filter: blur(2px);
 }
 
 @media (max-width: 768px) {

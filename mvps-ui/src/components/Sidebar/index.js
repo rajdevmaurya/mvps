@@ -26,18 +26,11 @@ const Sidebar = () => {
   // Collapsible sections with sub-items
   const sections = [
     {
-      title: 'Search',
-      icon: '🔍',
-      items: [
-        { label: 'Product Search', path: '/search/products' },
-        { label: 'Vendor Search', path: '/search/vendors' },
-      ],
-    },
-    {
       title: 'Products Management',
       icon: '📦',
       items: [
         { label: 'Products Catalog', path: '/products/catalog' },
+        { label: 'Product Search', path: '/search/products' },
       ],
     },
     {
@@ -45,6 +38,7 @@ const Sidebar = () => {
       icon: '🏢',
       items: [
         { label: 'Vendor List', path: '/vendors/list' },
+        { label: 'Vendor Search', path: '/search/vendors' },
         { label: 'Vendor Product Mapping', path: '/vendors/products' },
         { label: 'Purchase Orders', path: '/vendors/orders' },
       ],
@@ -72,6 +66,7 @@ const Sidebar = () => {
   // Single menu items (no sub-sections)
   const singleItems = [
     { label: 'Dashboard', icon: '🏠', path: '/dashboard' },
+    { label: 'POS Billing', icon: '💊', path: '/scanner' },
   ];
 
   const bottomItems = [
@@ -101,7 +96,10 @@ const Sidebar = () => {
       )}
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <h2 className="sidebar-logo">MVPS</h2>
+          <div>
+            <h2 className="sidebar-logo">MVPS</h2>
+            <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>Echo Healthcare</div>
+          </div>
         </div>
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
