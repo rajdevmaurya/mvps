@@ -10,6 +10,7 @@ import {
 } from '../../store/slices/customersSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './CustomersPage.css';
 
 const CustomersPage = () => {
@@ -124,10 +125,7 @@ const CustomersPage = () => {
 
   return (
     <div className="page customers-page container">
-      <h1 className="page-title">Customers</h1>
-      <p className="page-subtitle">
-        Manage patients and institutions and review their contact details.
-      </p>
+      <PageHeader title="Customers" subtitle="Manage patients and institutions and review their contact details." />
 
       <div className="toolbar customers-toolbar">
         <input

@@ -10,6 +10,7 @@ import {
 } from '../../store/slices/ordersSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './OrdersPage.css';
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -211,10 +212,7 @@ const OrdersPage = () => {
 
   return (
     <div className="page orders-page container">
-      <h1 className="page-title">Orders</h1>
-      <p className="page-subtitle">
-        View recent customer orders and their fulfillment status.
-      </p>
+      <PageHeader title="Orders" subtitle="View recent customer orders and their fulfillment status." />
 
       {/* Search & Filter Bar */}
       <div className="orders-search-bar">

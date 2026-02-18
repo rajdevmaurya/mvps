@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData } from '../../apiClient';
+import PageHeader from '../../components/PageHeader';
 import './SearchPage.css';
 
 const SearchPage = ({ type }) => {
@@ -136,6 +137,7 @@ const SearchPage = ({ type }) => {
 
   return (
     <div className="page search-page container">
+      <PageHeader title="Search" subtitle="Search products and vendors by name, price, and other attributes." />
       <div className="search-grid">
         {showProducts && (
           <section className="search-panel">

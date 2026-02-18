@@ -9,6 +9,7 @@ import {
 } from '../../store/slices/productsSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './ProductsPage.css';
 
 const ProductsPage = () => {
@@ -169,10 +170,7 @@ const ProductsPage = () => {
 
   return (
     <div className="page products-page container">
-      <h1 className="page-title">Products Catalog</h1>
-      <p className="page-subtitle">
-        Master list of products with lowest price vendor.
-      </p>
+      <PageHeader title="Products Catalog" subtitle="Master list of products with lowest price vendor." />
       <div className="toolbar products-toolbar">
         <input
           type="search"

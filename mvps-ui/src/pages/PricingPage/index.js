@@ -7,6 +7,7 @@ import {
 } from '../../store/slices/pricingSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './PricingPage.css';
 
 const PricingPage = () => {
@@ -112,10 +113,7 @@ const PricingPage = () => {
 
   return (
     <div className="page pricing-page container">
-      <h1 className="page-title">Pricing & Lowest Vendor</h1>
-      <p className="page-subtitle">
-        Review lowest-price vendors and compare prices across suppliers.
-      </p>
+      <PageHeader title="Pricing &amp; Lowest Vendor" subtitle="Review lowest-price vendors and compare prices across suppliers." />
 
       <section className="pricing-section">
         <h2>Lowest Price per Product</h2>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData, postJson } from '../../apiClient';
+import PageHeader from '../../components/PageHeader';
 import './MapProductVendorPage.css';
 
 const SearchableSelect = ({ label, name, options, value, onChange, placeholder, required }) => {
@@ -198,10 +199,7 @@ const MapProductVendorPage = () => {
 
   return (
     <div className="page map-product-vendor-page container">
-      <h1 className="page-title">Map Product to Vendor</h1>
-      <p className="page-subtitle">
-        Create a new vendor-product relationship with pricing and stock information.
-      </p>
+      <PageHeader title="Map Product to Vendor" subtitle="Create a new vendor-product relationship with pricing and stock information." />
 
       <button
         type="button"

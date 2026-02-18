@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchData } from '../../apiClient';
+import PageHeader from '../../components/PageHeader';
 import './AnalyticsPage.css';
 
 const AnalyticsPage = () => {
@@ -133,10 +134,7 @@ const AnalyticsPage = () => {
 
   return (
     <div className="page reports-page container">
-      <h1 className="page-title">Analytics & Reports</h1>
-      <p className="page-subtitle">
-        Daily sales, vendor performance and top-selling products.
-      </p>
+      <PageHeader title="Analytics &amp; Reports" subtitle="Daily sales, vendor performance and top-selling products." />
 
       <section className="reports-section">
         <h2>Daily Sales (Last Snapshot)</h2>

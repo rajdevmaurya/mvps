@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -114,10 +115,7 @@ const Dashboard = () => {
 
   return (
     <div className="page dashboard-page container">
-      <h1 className="page-title">MVPS Overview</h1>
-      <p className="page-subtitle">
-        Multi-Vendor Product Management for Echo Healthcare
-      </p>
+      <PageHeader title="MVPS Overview" subtitle="Multi-Vendor Product Management for Echo Healthcare" />
 
       <section className="dashboard-cards">
         <div className="card">

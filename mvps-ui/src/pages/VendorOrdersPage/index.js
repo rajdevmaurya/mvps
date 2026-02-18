@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { fetchData, postJson, putJson, deleteJson } from '../../apiClient';
 import Pagination from '../../components/Pagination';
 import SearchableSelect from '../../components/SearchableSelect';
+import PageHeader from '../../components/PageHeader';
 import './VendorOrdersPage.css';
 
 const PAGE_SIZE = 20;
@@ -374,10 +375,7 @@ const VendorOrdersPage = () => {
 
   return (
     <div className="page vendor-orders-page customers-page container">
-      <h1 className="page-title">{pageTitle}</h1>
-      <p className="page-subtitle">
-        Purchase orders placed to vendors, with status tracking.
-      </p>
+      <PageHeader title={pageTitle} subtitle="Purchase orders placed to vendors, with status tracking." />
 
       <div className="toolbar customers-toolbar">
         <div className="filters-group">

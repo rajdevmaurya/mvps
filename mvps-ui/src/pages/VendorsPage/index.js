@@ -9,6 +9,7 @@ import {
 } from '../../store/slices/vendorsSlice';
 import { fetchData } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './VendorsPage.css';
 
 const VendorsPage = () => {
@@ -142,10 +143,7 @@ const VendorsPage = () => {
 
   return (
     <div className="page vendors-page container">
-      <h1 className="page-title">Vendors</h1>
-      <p className="page-subtitle">
-        Manage active suppliers and review their performance.
-      </p>
+      <PageHeader title="Vendors" subtitle="Manage active suppliers and review their performance." />
 
       <div className="toolbar">
         <input

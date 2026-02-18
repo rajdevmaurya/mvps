@@ -7,6 +7,7 @@ import {
 } from '../../store/slices/inventorySlice';
 import { fetchData, patchJson } from '../../apiClient';
 import Pagination from '../../components/Pagination';
+import PageHeader from '../../components/PageHeader';
 import './InventoryPage.css';
 
 const PAGE_SIZE = 10;
@@ -314,10 +315,7 @@ const InventoryPage = () => {
 
   return (
     <div className="page inventory-page container">
-      <h1 className="page-title">Inventory & Stock</h1>
-      <p className="page-subtitle">
-        Track available stock across vendors and identify high-demand items.
-      </p>
+      <PageHeader title="Inventory &amp; Stock" subtitle="Track available stock across vendors and identify high-demand items." />
 
       <div className="inventory-search">
         <input
