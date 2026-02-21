@@ -498,7 +498,6 @@ const VendorOrdersPage = () => {
         )}
 
       <section style={{ marginTop: '1.5rem' }}>
-        <h2>Vendor orders</h2>
         {loading && <p>Loading vendor orders...</p>}
         {error && !loading && <p className="error-message">{error}</p>}
         <div className="table-wrapper">

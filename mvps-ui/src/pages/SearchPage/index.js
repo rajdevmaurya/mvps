@@ -272,10 +272,6 @@ const SearchPage = ({ type }) => {
 
         {showVendors && (
           <section className="search-panel">
-            <div className="search-panel__header">
-              <h2>Vendor search</h2>
-              <p>Search vendors by name, city, state, and status.</p>
-            </div>
             <form className="search-form" onSubmit={handleVendorSearch}>
               <div className="search-form-row">
                 <label className="search-label" htmlFor="vendorQuery">
