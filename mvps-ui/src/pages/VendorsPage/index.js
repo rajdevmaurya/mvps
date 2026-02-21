@@ -175,19 +175,21 @@ const VendorsPage = () => {
         {loading && <p>Loading vendors...</p>}
         {error && !loading && <p className="error-message">{error}</p>}
         <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>City</th>
-              <th>State</th>
-              <th>Total Products</th>
-              <th>Total Stock</th>
-              <th>Avg. Price (₹)</th>
-              <th>Times Cheapest</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          {filteredVendors.length > 0 && (
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Total Products</th>
+                <th>Total Stock</th>
+                <th>Avg. Price (₹)</th>
+                <th>Times Cheapest</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+          )}
           <tbody>
             {filteredVendors.map((v, index) => (
               <tr key={v.id ?? `vendor-${index}`}>

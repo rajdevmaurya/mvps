@@ -212,18 +212,20 @@ const ProductsPage = () => {
         {loading && <p>Loading products...</p>}
         {error && !loading && <p className="error-message">{error}</p>}
         <table className="table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Generic</th>
-              <th>Category</th>
-              <th>Manufacturer</th>
-              <th>Prescription</th>
-              <th>Lowest Price (₹)</th>
-              <th>Best Vendor</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          {filteredRows.length > 0 && (
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Generic</th>
+                <th>Category</th>
+                <th>Manufacturer</th>
+                <th>Prescription</th>
+                <th>Lowest Price (₹)</th>
+                <th>Best Vendor</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+          )}
           <tbody>
             {filteredRows.map((row) => (
               <tr key={row.id}>

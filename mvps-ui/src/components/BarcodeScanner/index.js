@@ -19,6 +19,7 @@ let scannerCounter = 0;
 function BarcodeScanner({ onDetected, onError }) {
   const containerRef = useRef(null);
   const scannerRef = useRef(null);
+  const mountedRef = useRef(true);
   const idRef = useRef('scanner-' + (++scannerCounter));
   const onDetectedRef = useRef(onDetected);
   const lastCodeRef = useRef({ code: null, time: 0 });
@@ -57,11 +58,12 @@ function BarcodeScanner({ onDetected, onError }) {
 
     scanner.render(
       (decodedText, decodedResult) => {
+        if (!mountedRef.current) return;
         // Dedup: skip same code within 3s
         const now = Date.now();
         if (decodedText === lastCodeRef.current.code && now - lastCodeRef.current.time < 3000) {
           // Still resume so scanner keeps running
-          setTimeout(() => { try { scanner.resume(); } catch (e) {} }, 200);
+          setTimeout(() => { try { if (mountedRef.current) scanner.resume(); } catch (e) {} }, 200);
           return;
         }
         lastCodeRef.current = { code: decodedText, time: now };
@@ -72,7 +74,7 @@ function BarcodeScanner({ onDetected, onError }) {
 
         // Auto-resume scanning for next barcode (POS continuous mode)
         setTimeout(() => {
-          try { scanner.resume(); } catch (e) {}
+          try { if (mountedRef.current) scanner.resume(); } catch (e) {}
           console.log('[Scanner] Resumed — ready for next scan');
         }, 500);
       },
@@ -85,12 +87,23 @@ function BarcodeScanner({ onDetected, onError }) {
 
   useEffect(() => {
     // Small delay to ensure DOM is ready after React commit
+    mountedRef.current = true;
     const timer = setTimeout(initScanner, 300);
     return () => {
+      mountedRef.current = false;
       clearTimeout(timer);
       if (scannerRef.current) {
-        try { scannerRef.current.clear(); } catch (e) { /* ok */ }
-        scannerRef.current = null;
+        try {
+          // clear() returns a Promise in html5-qrcode; ensure we attempt to stop it
+          const maybePromise = scannerRef.current.clear();
+          if (maybePromise && typeof maybePromise.then === 'function') {
+            maybePromise.then(() => { scannerRef.current = null; }).catch(() => { scannerRef.current = null; });
+          } else {
+            scannerRef.current = null;
+          }
+        } catch (e) {
+          scannerRef.current = null;
+        }
       }
     };
   }, [initScanner]);

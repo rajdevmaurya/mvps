@@ -229,16 +229,18 @@ const SearchPage = ({ type }) => {
 
             <div className="table-wrapper">
               <table className="table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Generic</th>
-                    <th>Best vendor</th>
-                    <th>Price (₹)</th>
-                    <th>Stock</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+                {productResults.length > 0 && (
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Generic</th>
+                      <th>Best vendor</th>
+                      <th>Price (₹)</th>
+                      <th>Stock</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                )}
                 <tbody>
                   {productResults.map((row, index) => (
                     <tr key={row.vendorProductId ?? row.productId ?? `product-${index}`}>
@@ -339,15 +341,17 @@ const SearchPage = ({ type }) => {
 
             <div className="table-wrapper">
               <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>City</th>
-                    <th>State</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+                {vendorResults.length > 0 && (
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>City</th>
+                      <th>State</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                )}
                 <tbody>
                   {vendorResults.map((row) => (
                     <tr key={row.id}>
